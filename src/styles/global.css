@@ -1,0 +1,53 @@
+/* Reset default margins and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Full-screen layout for the application */
+html,
+body,
+#root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Canvas fills viewport and displays as block to remove inline spacing */
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+/* Cursor pointer for interactive elements */
+button,
+a,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Smooth transitions for interactive elements */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

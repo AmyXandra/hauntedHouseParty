@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Test Cleanup on File Deletion",
+  "description": "When a source file or documentation is deleted, automatically remove all associated test files to maintain a clean codebase and prevent orphaned tests",
+  "version": "1",
+  "when": {
+    "type": "fileDeleted",
+    "patterns": [
+      "src/**/*.tsx",
+      "src/**/*.ts",
+      "src/**/*.jsx",
+      "src/**/*.js",
+      "public/**/*.md",
+      "*.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file has been deleted: {filePath}. Please identify and remove all associated test files for this asset/component/page. Look for test files with patterns like:\n- {fileName}.test.tsx\n- {fileName}.test.ts  \n- {fileName}.property.test.tsx\n- {fileName}.error.test.tsx\n- {fileName}.accessibility.test.tsx\n- {fileName}.cleanup.property.test.tsx\n- {fileName}.interruption.property.test.tsx\n- {fileName}.door-reset.property.test.tsx\n- {fileName}.hand-reset.property.test.tsx\n- {fileName}.fallback.property.test.tsx\n- {fileName}.audio.property.test.tsx\n\nAlso check for any integration tests that might reference this deleted file. Remove all found test files and explain what was cleaned up."
+  }
+}

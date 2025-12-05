@@ -1,0 +1,11 @@
+{
+  "why": "To automatically clean up test files when asset files (models, textures, sounds) are deleted",
+  "id": "asset-test-cleanup-hook",
+  "name": "Asset Test Cleanup on Deletion",
+  "description": "When an asset file (GLB models, textures, sounds, etc.) is deleted from public/ or static/ directories, automatically remove any test files that reference or test that specific asset",
+  "eventType": "fileDeleted",
+  "filePatterns": "public/**/*.glb,public/**/*.gltf,public/**/*.fbx,public/**/*.obj,public/**/*.jpg,public/**/*.jpeg,public/**/*.png,public/**/*.webp,public/**/*.mp3,public/**/*.wav,public/**/*.ogg,static/**/*.glb,static/**/*.gltf,static/**/*.fbx,static/**/*.obj,static/**/*.jpg,static/**/*.jpeg,static/**/*.png,static/**/*.webp,static/**/*.mp3,static/**/*.wav,static/**/*.ogg",
+  "hookAction": "askAgent",
+  "outputPrompt": "An asset file has been deleted: {filePath}. Please find and remove any test files that specifically reference or test this asset. Look for:\n\n1. Test files that import or reference this asset path\n2. Test files named after this asset (e.g., if 'girl.glb' was deleted, look for 'GirlModelTest.tsx', 'GirlTest.tsx', etc.)\n3. Test files in src/components/test/ that might be testing this specific asset\n4. Any component test files that load or use this specific asset\n\nSearch patterns to check:\n- Files containing the asset filename (without extension)\n- Files containing the full asset path\n- Test files in src/components/test/ directory\n- Any .test.tsx files that reference this asset\n\nRemove all found test files that are specifically for this deleted asset and explain what was cleaned up.",
+  "command": null
+}
