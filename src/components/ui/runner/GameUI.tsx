@@ -39,7 +39,7 @@ export default function GameUI({
         justifyContent: 'center'
       }}>
         <h1 style={{ fontSize: '3rem', color: '#ff6600', marginBottom: '1rem', fontFamily: 'Creepster, cursive'}}>
-          Haunted Runner
+          Tomb Runner
         </h1>
         <p style={{ color: '#ff9900', marginBottom: '2rem', textAlign: 'center' }}>
           Collect coins and dodge graves and ghosts!

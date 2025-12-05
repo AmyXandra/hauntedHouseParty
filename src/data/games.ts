@@ -14,7 +14,7 @@ export const games: Game[] = [
   },
   {
     id: 'game5',
-    name: 'Endless Runner',
+    name: 'Tomb Runner',
     component: Game5,
   },
 ]

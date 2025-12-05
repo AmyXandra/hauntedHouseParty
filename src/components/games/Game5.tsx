@@ -13,8 +13,8 @@ const RIGHT_LANE = 2
 
 
 /**
- * Game5: Endless Runner
- * Dodge trees while running through an endless world
+ * Game5: Tomb Runner
+ * Navigate through a haunted graveyard, collecting coins while avoiding graves and ghosts
  */
 const Game5 = ({ onBack }: GameProps) => {
   const [gameState, setGameState] = useState<GameState>({
@@ -173,7 +173,7 @@ const Game5 = ({ onBack }: GameProps) => {
           justifyContent: 'center'
         }}>
           <h1 style={{ fontSize: '6rem', color: '#ff6600', marginBottom: '1rem', fontFamily: 'Creepster, cursive' }}>
-            Haunted Runner
+            Tomb Runner
           </h1>
           <p style={{ color: '#ff9900', marginBottom: '2rem', textAlign: 'center' }}>
             Collect coins and dodge graves and ghosts!
