@@ -18,9 +18,10 @@ export const useGameNavigation = () => {
 
   /**
    * Navigate back to the home page (haunted house scene)
+   * Passes state to indicate returning from a game for zoom-out effect
    */
   const navigateToHome = () => {
-    navigate('/')
+    navigate('/', { state: { fromGame: true } })
   }
 
   return {

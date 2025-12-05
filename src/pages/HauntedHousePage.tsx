@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Scene from '../components/scene/Scene'
 import Sky from '../components/scene/Sky'
 import Lights from '../components/scene/Lights'
@@ -13,6 +13,7 @@ import IntroOverlay from '../components/ui/IntroOverlay'
 import { useTextures } from '../hooks/useTextures'
 import { useResponsive } from '../hooks/useResponsive'
 import { useDoorKnock } from '../hooks/useDoorKnock'
+import { useCameraTransition } from '../hooks/useCameraTransition'
 import { useAppSelector, useAppDispatch } from '../store/hooks'
 import { loadIntroState, startIntroAnimation } from '../store/slices/introSlice'
 import { getRandomGame } from '../data/games'
@@ -24,6 +25,7 @@ import { INITIAL_CAMERA_POSITION, FINAL_CAMERA_POSITION } from '../components/sc
  */
 export default function HauntedHousePage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const dispatch = useAppDispatch()
   const { hasSeenIntro, isAnimating } = useAppSelector(state => state.intro)
 
@@ -43,13 +45,16 @@ export default function HauntedHousePage() {
     }
   }, [hasSeenIntro, isAnimating, dispatch])
 
+  // Check if returning from a game (location state indicates this)
+  const shouldZoomOut = location.state?.fromGame === true
+
   // Door knock system - requires 3 knocks to enter
   const handleDoorEntry = () => {
     const randomGame = getRandomGame()
     navigate(`/game/${randomGame.id}`)
   }
   
-  const { knockCount, isListening, handleKnock } = useDoorKnock(handleDoorEntry)
+  const { knockCount, isListening, handleKnock, triggerNavigation } = useDoorKnock(handleDoorEntry)
 
   // Determine initial camera position based on intro state
   const initialCameraPosition = hasSeenIntro ? FINAL_CAMERA_POSITION : INITIAL_CAMERA_POSITION
@@ -71,7 +76,13 @@ export default function HauntedHousePage() {
         }}
         dpr={[1, 2]} // Cap pixel ratio at 2 for performance
       >
-        <SceneContent onDoorClick={handleKnock} knockCount={knockCount} isListening={isListening} />
+        <SceneContent 
+          onDoorClick={handleKnock} 
+          knockCount={knockCount} 
+          isListening={isListening}
+          shouldZoomOut={shouldZoomOut}
+          triggerNavigation={triggerNavigation}
+        />
       </Canvas>
       
       {/* UI Overlay */}
@@ -87,22 +98,34 @@ export default function HauntedHousePage() {
 function SceneContent({ 
   onDoorClick, 
   knockCount, 
-  isListening 
+  isListening,
+  shouldZoomOut,
+  triggerNavigation
 }: { 
   onDoorClick: () => void
   knockCount: number
   isListening: boolean
+  shouldZoomOut: boolean
+  triggerNavigation: () => void
 }) {
   const { floorTextures } = useTextures()
   const { hasSeenIntro, isAnimating } = useAppSelector(state => state.intro)
+  const { zoomOut, isAnimating: isCameraAnimating } = useCameraTransition()
   useResponsive() // Handle window resize and responsive behavior
+  
+  // Handle zoom-out when returning from game
+  useEffect(() => {
+    if (shouldZoomOut) {
+      zoomOut()
+    }
+  }, [shouldZoomOut, zoomOut])
 
   return (
     <Scene>
       <Sky />
       <Lights />
       <Floor textures={floorTextures} />
-      <House onDoorClick={onDoorClick} knockCount={knockCount} isListening={isListening} />
+      <House onDoorClick={onDoorClick} knockCount={knockCount} isListening={isListening} triggerNavigation={triggerNavigation} />
       <Graveyard count={30} />
 
       {/* Animated camera for intro sequence */}
@@ -115,7 +138,7 @@ function SceneContent({
         minDistance={hasSeenIntro ? 3 : 2} // Restrict zoom after intro
         maxDistance={hasSeenIntro ? 12 : 20} // Restrict zoom after intro
         maxPolarAngle={Math.PI / 2 - 0.1} // Prevent camera from going below ground
-        enabled={!isAnimating} // Disable controls during animation
+        enabled={!isAnimating && !isCameraAnimating} // Disable controls during animations
       />
     </Scene>
   )

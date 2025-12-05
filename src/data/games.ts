@@ -1,7 +1,4 @@
 import { Game } from '../types'
-import Game1 from '../components/games/Game1'
-import Game2 from '../components/games/Game2'
-import Game3 from '../components/games/Game3'
 import Game4 from '../components/games/Game4'
 import Game5 from '../components/games/Game5'
 
@@ -10,21 +7,6 @@ import Game5 from '../components/games/Game5'
  * Each game has a unique ID, display name, and component
  */
 export const games: Game[] = [
-  {
-    id: 'game1',
-    name: 'Mystery Maze',
-    component: Game1,
-  },
-  {
-    id: 'game2',
-    name: 'Ghost Hunt',
-    component: Game2,
-  },
-  {
-    id: 'game3',
-    name: 'Spooky Puzzle',
-    component: Game3,
-  },
   {
     id: 'game4',
     name: 'Pumpkin Slicer',

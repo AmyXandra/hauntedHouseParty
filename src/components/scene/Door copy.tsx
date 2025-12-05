@@ -4,11 +4,9 @@ import { Html } from '@react-three/drei'
 import { Group, DoubleSide } from 'three'
 import { DoorProps } from '../../types'
 import { TextureSet } from '../../types'
-import { useCameraTransition } from '../../hooks/useCameraTransition'
 
 interface DoorComponentProps extends DoorProps {
   textures: TextureSet
-  triggerNavigation?: () => void
 }
 
 /**
@@ -27,36 +25,18 @@ interface DoorComponentProps extends DoorProps {
  * - Uses refs for direct Three.js object manipulation
  * - Smooth easing with useFrame
  */
-export default function Door({ textures, onClick, knockCount = 0, isListening = false, triggerNavigation }: DoorComponentProps) {
+export default function Door({ textures, onClick, knockCount = 0, isListening = false }: DoorComponentProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
   const [knockEffect, setKnockEffect] = useState(false)
   const groupRef = useRef<Group>(null)
   const focusHelperRef = useRef<HTMLButtonElement>(null)
   const animationStartTime = useRef<number>(0)
-  const closeAnimationStartTime = useRef<number>(0)
   const lastKnockCount = useRef(0)
-
-  const { zoomIn, isAnimating: isCameraAnimating } = useCameraTransition()
   
-  // Expose door closing function globally for camera transition
-  useEffect(() => {
-    (window as any).closeDoor = () => {
-      setIsClosing(true)
-      closeAnimationStartTime.current = 0
-    }
-    
-    return () => {
-      delete (window as any).closeDoor
-    }
-  }, [])
-  
-
-
   const ANIMATION_DURATION = 1.0 // seconds
-  const MAX_ROTATION = Math.PI / 2 // 90 degrees
+  const MAX_ROTATION = Math.PI / 8 // 90 degrees
 
   // Handle knock effect when knockCount changes
   useEffect(() => {
@@ -68,63 +48,36 @@ export default function Door({ textures, onClick, knockCount = 0, isListening = 
     }
   }, [knockCount, isListening])
 
-  // Handle door opening animation
+  // Handle door animation
   useFrame((state) => {
-    if (!groupRef.current) return
-    
-    // Handle door opening
-    if (isAnimating) {
-      // Set start time on first frame of animation
-      if (animationStartTime.current === 0) {
-        animationStartTime.current = state.clock.elapsedTime
-        return
-      }
+    if (!isAnimating || !groupRef.current) return
 
-      const elapsed = state.clock.elapsedTime - animationStartTime.current
-      const progress = Math.min(elapsed / ANIMATION_DURATION, 1)
-
-      // Smooth easing function (ease-out)
-      const easedProgress = 1 - Math.pow(1 - progress, 3)
-
-      // Apply rotation (opening)
-      groupRef.current.rotation.y = -easedProgress * MAX_ROTATION
-
-      // Complete animation and start camera zoom
-      if (progress >= 1) {
-        setIsAnimating(false)
-        // Start camera zoom-in effect
-        zoomIn(() => {
-          // Navigate after camera zoom completes
-          console.log('Camera zoom completed, triggering navigation...')
-          if (triggerNavigation) {
-            triggerNavigation()
-          }
-        })
-      }
+    // Set start time on first frame of animation
+    if (animationStartTime.current === 0) {
+      animationStartTime.current = state.clock.elapsedTime
+      return
     }
+
+    const elapsed = state.clock.elapsedTime - animationStartTime.current
+    const progress = Math.min(elapsed / ANIMATION_DURATION, 1)
     
-    // Handle door closing
-    if (isClosing) {
-      // Set start time on first frame of closing animation
-      if (closeAnimationStartTime.current === 0) {
-        closeAnimationStartTime.current = state.clock.elapsedTime
-        return
-      }
-
-      const elapsed = state.clock.elapsedTime - closeAnimationStartTime.current
-      const progress = Math.min(elapsed / ANIMATION_DURATION, 1)
-
-      // Smooth easing function (ease-in)
-      const easedProgress = Math.pow(progress, 2)
-
-      // Apply rotation (closing - from open back to closed)
-      groupRef.current.rotation.y = -MAX_ROTATION * (1 - easedProgress)
-
-      // Complete closing animation
-      if (progress >= 1) {
-        setIsClosing(false)
-        groupRef.current.rotation.y = 0 // Ensure door is fully closed
-      }
+    // Smooth easing function (ease-out)
+    const easedProgress = 1 - Math.pow(1 - progress, 3)
+    
+    // Apply rotation
+    groupRef.current.rotation.y = -easedProgress * MAX_ROTATION
+    groupRef.current.position.x = -1.1
+    groupRef.current.position.y = 0
+    
+    // groupRef.current.rotation.x = -easedProgress * MAX_ROTATION
+    
+    // Complete animation and navigate
+    if (progress >= 1) {
+      setIsAnimating(false)
+      // Small delay before navigation for visual effect
+      setTimeout(() => {
+        onClick()
+      }, 300)
     }
   })
 
@@ -140,7 +93,7 @@ export default function Door({ textures, onClick, knockCount = 0, isListening = 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isFocused) return
-
+      
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         handleClick()
@@ -152,10 +105,8 @@ export default function Door({ textures, onClick, knockCount = 0, isListening = 
   }, [isFocused, isAnimating, knockCount, onClick])
 
   const handleClick = () => {
-    if (isAnimating || isCameraAnimating) return // Prevent clicks during animations
-    
     if (knockCount >= 2) {
-      // Third knock - start door animation (navigation will happen after camera zoom)
+      // Third knock - start animation and complete the sequence
       startAnimation()
     } else {
       // First or second knock - just register the knock
@@ -221,33 +172,30 @@ export default function Door({ textures, onClick, knockCount = 0, isListening = 
           tabIndex={0}
         />
       </Html>
-
-      <mesh
-        position={[1.1, 1.0, 2 + 0.01]} // Offset mesh so left edge is at group origin
-        onPointerOver={() => !isAnimating && setIsHovered(true)}
-        onPointerOut={() => setIsHovered(false)}
-        onClick={handleClick}
-      >
-        {/* <planeGeometry args={[2.2, 2.2, 100, 100]} /> */}
-        <boxGeometry args={[2.2, 2.2, 0.05]} /> {/* thin door */}
-        <meshStandardMaterial
-          map={textures.map}
-          aoMap={textures.aoMap}
-          normalMap={textures.normalMap}
-          roughnessMap={textures.roughnessMap}
-          metalnessMap={textures.metalnessMap}
-          displacementMap={textures.displacementMap}
-          displacementScale={0.15}
-          displacementBias={-0.04}
-          alphaMap={textures.alphaMap}
-          transparent
-          side={DoubleSide}
-          emissive={getEmissiveColor()}
-          emissiveIntensity={getEmissiveIntensity()}
-        />
-      </mesh>
-
-
+      
+        <mesh
+          position={[1.1, 1.0, 2 + 0.01]} // Offset mesh so left edge is at group origin
+          onPointerOver={() => !isAnimating && setIsHovered(true)}
+          onPointerOut={() => setIsHovered(false)}
+          onClick={handleClick}
+        >
+          <planeGeometry args={[2.2, 2.2, 100, 100]} />
+          <meshStandardMaterial
+            map={textures.map}
+            aoMap={textures.aoMap}
+            normalMap={textures.normalMap}
+            roughnessMap={textures.roughnessMap}
+            metalnessMap={textures.metalnessMap}
+            displacementMap={textures.displacementMap}
+            displacementScale={0.15}
+            displacementBias={-0.04}
+            alphaMap={textures.alphaMap}
+            transparent
+            side={DoubleSide}
+            emissive={getEmissiveColor()}
+            emissiveIntensity={getEmissiveIntensity()}
+          />
+        </mesh>
     </group>
   )
 }

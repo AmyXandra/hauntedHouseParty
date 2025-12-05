@@ -10,7 +10,7 @@ import InnerDoor from './InnerDoor'
  * House component that groups walls, roof, door, and bushes
  * Container for the main haunted house structure
  */
-export default function House({ onDoorClick, knockCount = 0, isListening = false }: HouseProps) {
+export default function House({ onDoorClick, knockCount = 0, isListening = false, triggerNavigation }: HouseProps & { triggerNavigation?: () => void }) {
   const { wallTextures, roofTextures, bushTextures, doorTextures } =
     useTextures()
 
@@ -23,6 +23,7 @@ export default function House({ onDoorClick, knockCount = 0, isListening = false
         onClick={onDoorClick}
         knockCount={knockCount}
         isListening={isListening}
+        triggerNavigation={triggerNavigation}
       />
       <InnerDoor/>
       <Bushes textures={bushTextures} />

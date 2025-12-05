@@ -44,11 +44,12 @@ export function useDoorKnock(onComplete: () => void, timeWindow = 2000) {
     // Check if we've reached 3 knocks
     if (newKnockCount >= 3) {
       setKnockState({
-        knockCount: 0,
+        knockCount: 3, // Keep the count at 3 for UI feedback
         isListening: false,
         timeoutId: null
       })
-      onComplete()
+      // Don't call onComplete immediately - let Door component handle timing
+      // The Door component will call the navigation after animations complete
       return
     }
     
@@ -69,10 +70,21 @@ export function useDoorKnock(onComplete: () => void, timeWindow = 2000) {
     })
   }, [onComplete, timeWindow])
   
+  const triggerNavigation = useCallback(() => {
+    onComplete()
+    // Reset after navigation
+    setKnockState({
+      knockCount: 0,
+      isListening: false,
+      timeoutId: null
+    })
+  }, [onComplete])
+  
   return {
     knockCount: knockState.knockCount,
     isListening: knockState.isListening,
     handleKnock,
-    resetKnocks
+    resetKnocks,
+    triggerNavigation
   }
 }
