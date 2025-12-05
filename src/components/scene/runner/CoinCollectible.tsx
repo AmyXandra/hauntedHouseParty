@@ -4,7 +4,7 @@ import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { HERO_Z_POSITION } from './HeroCharacter'
 
-const RUNNING_SPEED = 0.005
+const RUNNING_SPEED = 0.3
 
 interface Coin {
   id: string
@@ -16,6 +16,7 @@ interface CoinCollectibleProps {
   coin: Coin
   onCollect: (id: string) => void
   onRemove: (id: string) => void
+  currentLane: number
 }
 
 /**
@@ -25,7 +26,8 @@ interface CoinCollectibleProps {
 export default function CoinCollectible({ 
   coin, 
   onCollect, 
-  onRemove 
+  onRemove,
+  currentLane
 }: CoinCollectibleProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const hasCollectedRef = useRef(false)
@@ -35,7 +37,7 @@ export default function CoinCollectible({
     if (!meshRef.current) return
     
     // Move coin towards player with consistent speed
-    meshRef.current.position.z += RUNNING_SPEED * delta * 60
+    meshRef.current.position.z += RUNNING_SPEED
     
     // Rotate coin
     meshRef.current.rotation.y += delta * 4
@@ -45,7 +47,12 @@ export default function CoinCollectible({
     
     // Check collection with hero (at z = HERO_Z_POSITION)
     const zDistance = Math.abs(meshRef.current.position.z - HERO_Z_POSITION)
-    const xDistance = Math.abs(meshRef.current.position.x - coin.lane)
+    const xDistance = Math.abs(meshRef.current.position.x - currentLane)
+    
+    // Debug: Log position every few frames for first few seconds
+    if (coin.id.includes('coin_') && meshRef.current.position.z > -20 && meshRef.current.position.z < -15) {
+      console.log(`🪙 Coin ${coin.id} moving: Z=${meshRef.current.position.z.toFixed(1)}, X=${meshRef.current.position.x.toFixed(1)}`)
+    }
     
     if (!hasCollectedRef.current && zDistance < 0.6 && xDistance < 0.8) {
       hasCollectedRef.current = true

@@ -39,15 +39,20 @@ export default function GraveObstacle({
     return [0, rotationY, 0] as [number, number, number]
   }, [grave.id]) // Use grave.id as dependency to ensure consistent rotation per grave
   
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!groupRef.current) return
     
     // Move grave towards player with consistent speed
-    groupRef.current.position.z += RUNNING_SPEED * delta * 60
+    groupRef.current.position.z += RUNNING_SPEED
     
     // Check collision with hero (at z = HERO_Z_POSITION)
     const zDistance = Math.abs(groupRef.current.position.z - HERO_Z_POSITION)
     const xDistance = Math.abs(groupRef.current.position.x - currentLane)
+    
+    // Debug: Log position every few frames for first few seconds
+    if (grave.id.includes('grave_') && groupRef.current.position.z > -20 && groupRef.current.position.z < -15) {
+      console.log(`⚰️ Grave ${grave.id} moving: Z=${groupRef.current.position.z.toFixed(1)}, X=${groupRef.current.position.x.toFixed(1)}, Hero lane=${currentLane}`)
+    }
     
     if (!hasCollidedRef.current && zDistance < 0.8 && xDistance < 0.6) {
       hasCollidedRef.current = true

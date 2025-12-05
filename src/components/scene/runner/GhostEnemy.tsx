@@ -122,7 +122,7 @@ export default function GhostEnemy({
     if (!groupRef.current) return
     
     // Update ghost position - moves forward
-    ghost.position.z += 0.04 * delta * 60 // Faster than graves/coins
+    ghost.position.z += 0.4 // Faster than graves/coins
     ghost.lifetime += delta
     
     // Wave motion - flies in sine wave pattern across lanes

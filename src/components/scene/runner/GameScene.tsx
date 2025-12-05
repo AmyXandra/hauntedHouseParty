@@ -91,7 +91,9 @@ export default function GameScene({
       setGraves(prev => [...prev, ...newGraves])
       setCoins(prev => [...prev, ...newCoins])
       
-      console.log(`🎮 Spawned ${newGraves.length} graves and ${newCoins.length} coins`)
+      console.log(`🎮 Spawned ${newGraves.length} graves and ${newCoins.length} coins at time ${elapsed.toFixed(1)}s`)
+      console.log('Grave positions:', newGraves.map(g => `Lane ${g.lane}, Z ${g.position}`))
+      console.log('Coin positions:', newCoins.map(c => `Lane ${c.lane}, Z ${c.position}`))
     }
     
     // Spawn ghost every 8-12 seconds (more frequent for challenge)
@@ -204,6 +206,7 @@ export default function GameScene({
           coin={coin}
           onCollect={handleCoinCollect}
           onRemove={handleCoinRemove}
+          currentLane={gameState.currentLane}
         />
       ))}
       
