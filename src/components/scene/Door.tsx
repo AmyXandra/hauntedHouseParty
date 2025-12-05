@@ -5,6 +5,7 @@ import { Group, DoubleSide } from 'three'
 import { DoorProps } from '../../types'
 import { TextureSet } from '../../types'
 import { useCameraTransition } from '../../hooks/useCameraTransition'
+import { useAudio } from '../../hooks/useAudio'
 
 interface DoorComponentProps extends DoorProps {
   textures: TextureSet
@@ -40,18 +41,26 @@ export default function Door({ textures, onClick, knockCount = 0, isListening = 
   const lastKnockCount = useRef(0)
 
   const { zoomIn, isAnimating: isCameraAnimating } = useCameraTransition()
+  const { preloadAudio, playAudio } = useAudio()
+  
+  // Preload door creak sound
+  useEffect(() => {
+    preloadAudio('/sounds/door-creak.mp3', 0.6)
+  }, [preloadAudio])
   
   // Expose door closing function globally for camera transition
   useEffect(() => {
     (window as any).closeDoor = () => {
       setIsClosing(true)
       closeAnimationStartTime.current = 0
+      // Play door creak sound when closing
+      playAudio('/sounds/door-creak.mp3')
     }
     
     return () => {
       delete (window as any).closeDoor
     }
-  }, [])
+  }, [playAudio])
   
 
 
@@ -134,6 +143,8 @@ export default function Door({ textures, onClick, knockCount = 0, isListening = 
     setIsAnimating(true)
     // We'll set the start time in the next frame
     animationStartTime.current = 0
+    // Play door creak sound when opening
+    playAudio('/sounds/door-creak.mp3')
   }
 
   // Keyboard event handler

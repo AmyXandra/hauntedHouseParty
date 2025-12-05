@@ -1,5 +1,6 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { HERO_BASE_Y, HERO_Z_POSITION } from './HeroCharacter'
 
@@ -19,6 +20,90 @@ interface GhostEnemyProps {
 }
 
 /**
+ * Ghost Model Component - loads ghost.glb model
+ */
+function GhostModel({ scale = 1.0 }: { scale?: number }) {
+  try {
+    const { scene } = useGLTF('/models/ghost.glb')
+    
+    const clonedScene = useMemo(() => {
+      const clone = scene.clone()
+      
+      // Configure ghost materials for enhanced spooky effect
+      clone.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = false // Ghosts don't cast shadows
+          child.receiveShadow = false
+          
+          // Apply enhanced ghostly material properties
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(mat => {
+                if (mat instanceof THREE.MeshStandardMaterial) {
+                  // Enhanced ghost appearance
+                  mat.transparent = true
+                  mat.opacity = 0.85 // Slightly more opaque for better visibility
+                  mat.emissive = new THREE.Color(0xaaccff) // Cooler blue-white glow
+                  mat.emissiveIntensity = 0.6 // Stronger glow
+                  mat.color = new THREE.Color(0xffffff) // Pure white
+                  mat.roughness = 0.1 // Very smooth for ethereal look
+                  mat.metalness = 0.0 // Non-metallic
+                  mat.side = THREE.DoubleSide // Visible from both sides
+                }
+              })
+            } else if (child.material instanceof THREE.MeshStandardMaterial) {
+              // Enhanced ghost appearance
+              child.material.transparent = true
+              child.material.opacity = 0.85 // Slightly more opaque for better visibility
+              child.material.emissive = new THREE.Color(0xaaccff) // Cooler blue-white glow
+              child.material.emissiveIntensity = 0.6 // Stronger glow
+              child.material.color = new THREE.Color(0xffffff) // Pure white
+              child.material.roughness = 0.1 // Very smooth for ethereal look
+              child.material.metalness = 0.0 // Non-metallic
+              child.material.side = THREE.DoubleSide // Visible from both sides
+            }
+          }
+        }
+      })
+      
+      return clone
+    }, [scene])
+    
+    return <primitive object={clonedScene} scale={scale} />
+  } catch (error) {
+    console.error('Failed to load ghost.glb:', error)
+    // Fallback to procedural ghost
+    return (
+      <group scale={scale}>
+        {/* Ghost body */}
+        <mesh castShadow>
+          <sphereGeometry args={[0.5, 8, 6]} />
+          <meshStandardMaterial 
+            color="#ffffff" 
+            transparent
+            opacity={0.8}
+            emissive="#ccccff"
+            emissiveIntensity={0.4}
+          />
+        </mesh>
+        
+        {/* Ghost tail/wispy effect */}
+        <mesh position={[0, -0.3, 0]}>
+          <coneGeometry args={[0.3, 0.8, 6]} />
+          <meshStandardMaterial 
+            color="#ffffff" 
+            transparent
+            opacity={0.6}
+            emissive="#ccccff"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+      </group>
+    )
+  }
+}
+
+/**
  * Ghost enemy component - flies in wave pattern
  * Requires ducking or precise timing to avoid
  */
@@ -29,12 +114,12 @@ export default function GhostEnemy({
   currentLane, 
   bounceValue 
 }: GhostEnemyProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
+  const groupRef = useRef<THREE.Group>(null)
   const hasCollidedRef = useRef(false)
   const hasRemovedRef = useRef(false)
   
   useFrame((_, delta) => {
-    if (!meshRef.current) return
+    if (!groupRef.current) return
     
     // Update ghost position - moves forward
     ghost.position.z += 0.04 * delta * 60 // Faster than graves/coins
@@ -66,48 +151,40 @@ export default function GhostEnemy({
       onRemove(ghost.id)
     }
     
-    meshRef.current.position.copy(ghost.position)
-    meshRef.current.rotation.y += delta * 3
-    meshRef.current.rotation.x += delta * 2
+    groupRef.current.position.copy(ghost.position)
   })
   
   return (
-    <group ref={meshRef}>
-      {/* Ghost body */}
-      <mesh castShadow>
-        <sphereGeometry args={[0.5, 8, 6]} />
-        <meshStandardMaterial 
-          color="#ffffff" 
-          transparent
-          opacity={0.8}
-          emissive="#ccccff"
-          emissiveIntensity={0.4}
-        />
-      </mesh>
+    <group ref={groupRef}>
+      {/* Ghost 3D Model */}
+      <GhostModel scale={0.3} />
       
-      {/* Ghost tail/wispy effect */}
-      <mesh position={[0, -0.3, 0]}>
-        <coneGeometry args={[0.3, 0.8, 6]} />
-        <meshStandardMaterial 
-          color="#ffffff" 
-          transparent
-          opacity={0.6}
-          emissive="#ccccff"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-      
-      {/* Glowing aura */}
-      <mesh scale={1.3}>
-        <sphereGeometry args={[0.5, 8, 6]} />
+      {/* Enhanced glowing aura effect */}
+      <mesh scale={1.0}>
+        <sphereGeometry args={[0.5, 12, 8]} />
         <meshBasicMaterial 
-          color="#ccccff" 
+          color="#aaccff" 
           transparent
-          opacity={0.2}
+          opacity={0.15}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      {/* Inner glow for more depth */}
+      <mesh scale={0.8}>
+        <sphereGeometry args={[0.4, 8, 6]} />
+        <meshBasicMaterial 
+          color="#ffffff" 
+          transparent
+          opacity={0.1}
+          side={THREE.DoubleSide}
         />
       </mesh>
     </group>
   )
 }
+
+// Preload the ghost model
+useGLTF.preload('/models/ghost.glb')
 
 export type { Ghost }

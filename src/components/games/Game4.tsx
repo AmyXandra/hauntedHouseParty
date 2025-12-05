@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 import { GameProps } from '../../types'
-import { GameState, Pumpkin, Bat, Bomb, Particle, ScorePopup } from '../../types/pumpkin-slicer'
+import { GameState, Pumpkin, Bat, Bomb, ScorePopup } from '../../types/pumpkin-slicer'
 import BackButton from '../ui/BackButton'
 import GameScene from '../scene/pumpkin-slicer/GameScene'
 import GameUI from '../ui/pumpkin-slicer/GameUI'
 import MenuScreen from '../ui/pumpkin-slicer/MenuScreen'
-import RoundCompleteScreen from '../ui/pumpkin-slicer/RoundCompleteScreen'
 import GameOverScreen from '../ui/pumpkin-slicer/GameOverScreen'
 
 
@@ -15,16 +14,9 @@ import GameOverScreen from '../ui/pumpkin-slicer/GameOverScreen'
  * Game4: Pumpkin Slicer
  * 3D pumpkin slicing game inspired by Fruit Ninja
  * Click pumpkins to slice them and score points, avoid bombs
+ * Infinite gameplay - game ends when lives reach 0
  */
 const Game4 = ({ onBack }: GameProps) => {
-  // Calculate pumpkins needed for each round
-  const getPumpkinsForRound = (round: number) => {
-    // Round 1: 12, Round 2: 18, Round 3: 25, Round 4: 35
-    const basePumpkins = 12
-    const multiplier = Math.pow(1.5, round - 1)
-    return Math.floor(basePumpkins * multiplier)
-  }
-
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     lives: 3,
@@ -41,7 +33,6 @@ const Game4 = ({ onBack }: GameProps) => {
 
   // Game actions
   const startGame = () => {
-    const round1Pumpkins = getPumpkinsForRound(1)
     setGameState({
       score: 0,
       lives: 3,
@@ -53,30 +44,10 @@ const Game4 = ({ onBack }: GameProps) => {
       particles: [],
       scorePopups: [],
       pumpkinsSlicedThisRound: 0,
-      totalPumpkinsThisRound: round1Pumpkins
+      totalPumpkinsThisRound: 0
     })
 
-    setTimeout(() => addPumpkinBatch(3), 500)
-  }
-
-  const startNextRound = () => {
-    const nextRound = gameState.round + 1
-    const nextRoundPumpkins = getPumpkinsForRound(nextRound)
-
-    setGameState(prev => ({
-      ...prev,
-      round: nextRound,
-      gameStatus: 'playing',
-      pumpkins: [],
-      bats: [],
-      bombs: [],
-      particles: [],
-      scorePopups: [],
-      pumpkinsSlicedThisRound: 0,
-      totalPumpkinsThisRound: nextRoundPumpkins
-    }))
-
-    setTimeout(() => addPumpkinBatch(3), 500)
+    setTimeout(() => addPumpkinBatch(2), 500)
   }
 
   const resetGame = () => {
@@ -125,27 +96,7 @@ const Game4 = ({ onBack }: GameProps) => {
     }
   }
 
-  const addParticles = (position: THREE.Vector3, color: string) => {
-    const particles: Particle[] = []
-    for (let i = 0; i < 20; i++) {
-      particles.push({
-        id: Math.random().toString(36),
-        position: position.clone(),
-        velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.3,
-          Math.random() * 0.3,
-          (Math.random() - 0.5) * 0.3
-        ),
-        lifetime: 0,
-        color
-      })
-    }
 
-    setGameState(prev => ({
-      ...prev,
-      particles: [...prev.particles, ...particles]
-    }))
-  }
 
   const addScorePopup = (position: THREE.Vector3, score: number) => {
     const popup: ScorePopup = {
@@ -215,7 +166,6 @@ const Game4 = ({ onBack }: GameProps) => {
           pumpkins: prev.pumpkins.map(p => ({ ...p, sliced: true, sliceTime: Date.now() }))
         }
       })
-      addParticles(position, '#ffd700')
       addScorePopup(position, 500)
     } else {
       setGameState(prev => {
@@ -241,8 +191,6 @@ const Game4 = ({ onBack }: GameProps) => {
       }
     }
 
-    addParticles(position, '#ff6600')
-
     setTimeout(() => {
       setGameState(prev => ({
         ...prev,
@@ -251,10 +199,9 @@ const Game4 = ({ onBack }: GameProps) => {
     }, 1000)
   }
 
-  const explodeBomb = (id: string, position: THREE.Vector3) => {
+  const explodeBomb = (id: string, _position: THREE.Vector3) => {
     setGameState(prev => {
       const newLives = prev.lives - 1
-      console.log('Lives before:', prev.lives, 'Lives after:', newLives)
       return {
         ...prev,
         lives: newLives,
@@ -262,7 +209,6 @@ const Game4 = ({ onBack }: GameProps) => {
         bombs: prev.bombs.filter(b => b.id !== id)
       }
     })
-    addParticles(position, '#ff0000')
   }
 
   const removePumpkin = (id: string, missed: boolean = false) => {
@@ -312,59 +258,28 @@ const Game4 = ({ onBack }: GameProps) => {
     }))
   }
 
+  // Infinite spawn system - continuously spawn pumpkins
   useEffect(() => {
     if (gameState.gameStatus !== 'playing') return
 
-    const maxOnScreen = 4 + gameState.round
-    const spawnInterval = Math.max(800, 2000 - (gameState.round - 1) * 200)
-    const batchSize = Math.min(3, 1 + gameState.round)
+    const maxOnScreen = 5
+    const spawnInterval = 1500
+    const batchSize = 2
 
     const interval = setInterval(() => {
       const currentCount = gameState.pumpkins.filter(p => !p.sliced).length
-      const remainingToSpawn = gameState.totalPumpkinsThisRound - gameState.pumpkinsSlicedThisRound - currentCount
 
-      if (currentCount < maxOnScreen && remainingToSpawn > 0) {
-        const spawnCount = Math.min(batchSize, maxOnScreen - currentCount, remainingToSpawn)
+      if (currentCount < maxOnScreen) {
+        const spawnCount = Math.min(batchSize, maxOnScreen - currentCount)
         addPumpkinBatch(spawnCount)
       }
     }, spawnInterval)
 
     return () => clearInterval(interval)
-  }, [gameState.pumpkins.length, gameState.gameStatus, gameState.round, gameState.pumpkinsSlicedThisRound, gameState.totalPumpkinsThisRound])
-
-  useEffect(() => {
-    if (gameState.gameStatus !== 'playing') return
-
-    const checkRoundEnd = setInterval(() => {
-      if (gameState.pumpkinsSlicedThisRound >= gameState.totalPumpkinsThisRound) {
-        const activePumpkins = gameState.pumpkins.filter(p => !p.sliced).length
-        if (activePumpkins === 0) {
-          console.log('Round complete! Moving to next round or victory')
-          if (gameState.round < 4) {
-            setGameState(prev => ({ ...prev, gameStatus: 'roundComplete' }))
-          } else {
-            setGameState(prev => ({ ...prev, gameStatus: 'gameover' }))
-          }
-        }
-      }
-    }, 1000)
-
-    return () => clearInterval(checkRoundEnd)
-  }, [gameState.pumpkins.length, gameState.gameStatus, gameState.round, gameState.pumpkinsSlicedThisRound, gameState.totalPumpkinsThisRound])
+  }, [gameState.pumpkins.length, gameState.gameStatus])
 
   if (gameState.gameStatus === 'menu') {
     return <MenuScreen onStartGame={startGame} onBack={onBack} />
-  }
-
-  if (gameState.gameStatus === 'roundComplete') {
-    return (
-      <RoundCompleteScreen
-        gameState={gameState}
-        getPumpkinsForRound={getPumpkinsForRound}
-        onStartNextRound={startNextRound}
-        onBack={onBack}
-      />
-    )
   }
 
   if (gameState.gameStatus === 'gameover') {
@@ -381,54 +296,37 @@ const Game4 = ({ onBack }: GameProps) => {
     <div style={{
       width: '100%',
       height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+      position: 'relative',
       backgroundColor: '#1a0f0a',
-      padding: '1rem'
+      overflow: 'hidden'
     }}>
-      {/* Game Canvas Container */}
-      <div style={{
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-        backgroundColor: 'transparent',
-        borderRadius: window.innerWidth <= 768 ? '0' : '12px',
-        overflow: 'hidden',
-        boxShadow: window.innerWidth <= 768 ? 'none' : '0 8px 32px rgba(0,0,0,0.5)'
-      }}>
-        <GameUI gameState={gameState} />
+      <GameUI gameState={gameState} />
 
-        <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', zIndex: 10 }}>
-          <BackButton onClick={onBack} />
-        </div>
-
-        <div style={{
-          width: '100%',
-          height: '80%',
-        }}>
-          <Canvas
-            orthographic
-            camera={{
-              position: [0, 0, 10],
-              zoom: 50,
-              near: 0.1,
-              far: 1000
-            }}
-          >
-            <GameScene
-              gameState={gameState}
-              onSlicePumpkin={slicePumpkin}
-              onRemovePumpkin={removePumpkin}
-              onRemoveBat={removeBat}
-              onExplodeBomb={explodeBomb}
-              onRemoveBomb={removeBomb}
-              onRemoveParticle={removeParticle}
-              onRemoveScorePopup={removeScorePopup}
-            />
-          </Canvas>
-        </div>
+      <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', zIndex: 10 }}>
+        <BackButton onClick={onBack} />
       </div>
+
+      <Canvas
+        style={{ width: '100%', height: '100%' }}
+        orthographic
+        camera={{
+          position: [0, 0, 10],
+          zoom: 50,
+          near: 0.1,
+          far: 1000
+        }}
+      >
+        <GameScene
+          gameState={gameState}
+          onSlicePumpkin={slicePumpkin}
+          onRemovePumpkin={removePumpkin}
+          onRemoveBat={removeBat}
+          onExplodeBomb={explodeBomb}
+          onRemoveBomb={removeBomb}
+          onRemoveParticle={removeParticle}
+          onRemoveScorePopup={removeScorePopup}
+        />
+      </Canvas>
     </div>
   )
 }

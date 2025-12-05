@@ -65,7 +65,7 @@ export default function IntroOverlay({ knockCount = 0, isListening = false }: In
       {instructionVisible && (
         <div className="instruction-text">
           <p className="im-fell-english-font">
-            Knock 3 times to enter
+            Knock on the door 3 times to enter
             {isListening && knockCount > 0 && (
               <span className="knock-progress"> ({knockCount}/3)</span>
             )}

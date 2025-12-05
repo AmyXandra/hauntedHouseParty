@@ -43,31 +43,16 @@ export default function GameScene({
   onRemoveParticle,
   onRemoveScorePopup
 }: GameSceneProps) {
-  // Load only wall textures for Game4 backdrop
-  const [wallColorTexture, wallARMTexture, wallNormalTexture] = useLoader(
+  // Load PNG background texture
+  const backgroundTexture = useLoader(
     THREE.TextureLoader,
-    [
-      '/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.webp',
-      '/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.webp',
-      '/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.webp',
-    ]
+    '/images/pumpkin-slicer-bg.png' // Replace with your PNG path
   )
 
-  // Configure wall texture repeat for large backdrop (memoized to avoid re-configuring every render)
+  // Configure background texture
   useMemo(() => {
-    wallColorTexture.colorSpace = THREE.SRGBColorSpace
-    wallColorTexture.repeat.set(4, 2)
-    wallColorTexture.wrapS = THREE.RepeatWrapping
-    wallColorTexture.wrapT = THREE.RepeatWrapping
-    
-    wallARMTexture.repeat.set(4, 2)
-    wallARMTexture.wrapS = THREE.RepeatWrapping
-    wallARMTexture.wrapT = THREE.RepeatWrapping
-    
-    wallNormalTexture.repeat.set(4, 2)
-    wallNormalTexture.wrapS = THREE.RepeatWrapping
-    wallNormalTexture.wrapT = THREE.RepeatWrapping
-  }, [wallColorTexture, wallARMTexture, wallNormalTexture])
+    backgroundTexture.colorSpace = THREE.SRGBColorSpace
+  }, [backgroundTexture])
 
   return (
     <>
@@ -81,15 +66,12 @@ export default function GameScene({
       <pointLight position={[10, 10, 10]} intensity={0.5} />
       <pointLight position={[-10, -10, -10]} intensity={0.3} />
 
-      {/* Huge textured wall backdrop - positioned far back */}
-      <mesh position={[0, 0, -10]} receiveShadow>
-        <planeGeometry args={[30, 20]} />
-        <meshStandardMaterial
-          map={wallColorTexture}
-          aoMap={wallARMTexture}
-          roughnessMap={wallARMTexture}
-          metalnessMap={wallARMTexture}
-          normalMap={wallNormalTexture}
+      {/* PNG background backdrop - positioned far back, full width */}
+      <mesh position={[0, 0, -10]}>
+        <planeGeometry args={[100, 20]} />
+        <meshBasicMaterial
+          map={backgroundTexture}
+          transparent={true}
           side={THREE.FrontSide}
         />
       </mesh>

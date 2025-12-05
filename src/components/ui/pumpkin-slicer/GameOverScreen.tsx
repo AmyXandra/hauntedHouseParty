@@ -34,21 +34,45 @@ export default function GameOverScreen({ gameState, onResetGame, onBack }: GameO
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <h1 style={{ fontSize: '3rem', color: isVictory ? '#00ff66' : '#ff3300', marginBottom: '1rem' }}>
+      <h1 style={{ 
+        fontSize: '3rem', 
+        color: isVictory ? '#00ff66' : '#ff3300', 
+        marginBottom: '1rem',
+        fontFamily: 'Creepster, cursive'
+      }}>
         {isVictory ? 'Victory!' : 'Game Over!'}
       </h1>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <p style={{ fontSize: '1.5rem', color: '#ff9900', marginBottom: '0.5rem' }}>
+        <p style={{ 
+          fontSize: '1.5rem', 
+          color: '#ff9900', 
+          marginBottom: '0.5rem',
+          fontFamily: 'IM_Fell_English, serif'
+        }}>
           Final Score
         </p>
-        <p style={{ fontSize: '3rem', color: '#ff6600', fontWeight: 'bold' }}>
+        <p style={{ 
+          fontSize: '3rem', 
+          color: '#ff6600', 
+          fontWeight: 'bold',
+          fontFamily: 'IM_Fell_English, serif'
+        }}>
           {gameState.score}
         </p>
-        <p style={{ color: '#ff9900', marginTop: '1rem' }}>
+        <p style={{ 
+          color: '#ff9900', 
+          marginTop: '1rem',
+          fontFamily: 'IM_Fell_English, serif'
+        }}>
           {isVictory ? 'Completed all 4 rounds!' : `Reached Round ${gameState.round}`}
         </p>
         {isVictory && (
-          <p style={{ color: '#00ff66', marginTop: '1rem', fontSize: '1.2rem' }}>
+          <p style={{ 
+            color: '#00ff66', 
+            marginTop: '1rem', 
+            fontSize: '1.2rem',
+            fontFamily: 'IM_Fell_English, serif'
+          }}>
             🎉 Pumpkin Slicing Master! 🎉
           </p>
         )}
@@ -63,7 +87,8 @@ export default function GameOverScreen({ gameState, onResetGame, onBack }: GameO
             border: 'none',
             borderRadius: '8px',
             fontSize: '1.2rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            fontFamily: 'IM_Fell_English, serif'
           }}
         >
           Play Again

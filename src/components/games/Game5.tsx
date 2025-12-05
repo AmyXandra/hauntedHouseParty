@@ -25,25 +25,25 @@ const Game5 = ({ onBack }: GameProps) => {
     isJumping: false,
     coinsCollected: 0
   })
-  
+
   const bounceValueRef = useRef(0)
   const velocityRef = useRef(0)
-  
+
   // Debug: Monitor lives changes
   useEffect(() => {
     console.log(`💖 LIVES CHANGED TO: ${gameState.lives}`)
   }, [gameState.lives])
-  
+
   // Handle keyboard input
   useEffect(() => {
     if (gameState.gameStatus !== 'playing') return
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameState.isJumping && e.key !== 'ArrowUp') return
-      
+
       let newLane = gameState.currentLane
       let shouldJump = false
-      
+
       if (e.key === 'ArrowLeft') { // Left arrow
         if (gameState.currentLane === MIDDLE_LANE) newLane = LEFT_LANE
         else if (gameState.currentLane === RIGHT_LANE) newLane = MIDDLE_LANE
@@ -56,7 +56,7 @@ const Game5 = ({ onBack }: GameProps) => {
         velocityRef.current = 0.1
         shouldJump = true
       }
-      
+
       if (shouldJump) {
         setGameState(prev => ({
           ...prev,
@@ -65,20 +65,20 @@ const Game5 = ({ onBack }: GameProps) => {
         }))
       }
     }
-    
+
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [gameState.gameStatus, gameState.currentLane, gameState.isJumping])
-  
+
   // Physics update
   useEffect(() => {
     if (gameState.gameStatus !== 'playing') return
-    
+
     const interval = setInterval(() => {
       // Apply gravity and bounce
       velocityRef.current -= GRAVITY
       bounceValueRef.current += velocityRef.current
-      
+
       // Ground collision
       if (bounceValueRef.current <= 0) {
         bounceValueRef.current = 0
@@ -86,10 +86,10 @@ const Game5 = ({ onBack }: GameProps) => {
         setGameState(prev => ({ ...prev, isJumping: false }))
       }
     }, 16) // ~60fps
-    
+
     return () => clearInterval(interval)
   }, [gameState.gameStatus])
-  
+
   const startGame = () => {
     setGameState({
       score: 0,
@@ -102,23 +102,23 @@ const Game5 = ({ onBack }: GameProps) => {
     bounceValueRef.current = 0
     velocityRef.current = 0
   }
-  
+
   const resetGame = () => {
-    setGameState(prev => ({ 
-      ...prev, 
+    setGameState(prev => ({
+      ...prev,
       gameStatus: 'menu',
       score: 0,
       lives: 3,
       coinsCollected: 0
     }))
   }
-  
+
   const collisionCooldownRef = useRef(0)
-  
+
   const handleCollision = (_id: string, _type: 'grave' | 'ghost') => {
     console.log(`🎯 COLLISION HANDLER CALLED! Type: ${_type}, ID: ${_id}`)
     console.log(`🎯 Current lives BEFORE collision: ${gameState.lives}`)
-    
+
     // Prevent multiple collisions in quick succession
     const now = Date.now()
     if (now - collisionCooldownRef.current < 500) { // 500ms cooldown
@@ -126,7 +126,7 @@ const Game5 = ({ onBack }: GameProps) => {
       return
     }
     collisionCooldownRef.current = now
-    
+
     console.log(`🔥 COLLISION ACCEPTED! Type: ${_type}, ID: ${_id}`) // Debug log
     console.log(`🔥 Current game state:`, {
       lives: gameState.lives,
@@ -134,7 +134,7 @@ const Game5 = ({ onBack }: GameProps) => {
       isJumping: gameState.isJumping,
       bounceValue: bounceValueRef.current
     })
-    
+
     setGameState(prev => {
       const newLives = prev.lives - 1
       console.log(`🔥 Lives reduced from ${prev.lives} to ${newLives}`) // Debug log
@@ -146,7 +146,7 @@ const Game5 = ({ onBack }: GameProps) => {
       }
     })
   }
-  
+
   const handleCoinCollect = (_id: string) => {
     console.log('Coin collected! Adding 10 points') // Debug log
     setGameState(prev => ({
@@ -155,9 +155,9 @@ const Game5 = ({ onBack }: GameProps) => {
       coinsCollected: prev.coinsCollected + 1
     }))
   }
-  
 
-  
+
+
   // Handle non-playing states with inline UI for now
   if (gameState.gameStatus !== 'playing') {
     if (gameState.gameStatus === 'menu') {
@@ -172,19 +172,13 @@ const Game5 = ({ onBack }: GameProps) => {
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <h1 style={{ fontSize: '3rem', color: '#ff6600', marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '6rem', color: '#ff6600', marginBottom: '1rem', fontFamily: 'Creepster, cursive' }}>
             Haunted Runner
           </h1>
           <p style={{ color: '#ff9900', marginBottom: '2rem', textAlign: 'center' }}>
             Collect coins and dodge graves and ghosts!
           </p>
-          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-            <p style={{ color: '#ffcc00' }}>⬅️ ➡️ Arrow keys to switch lanes</p>
-            <p style={{ color: '#ffcc00' }}>⬆️ Up arrow to jump</p>
-            <p style={{ color: '#ffd700' }}>🪙 Collect coins (+10 points)</p>
-            <p style={{ color: '#ff6666' }}>⚰️ Avoid graves and 👻 ghosts!</p>
-            <p style={{ color: '#ff3300' }}>❤️ 3 lives total</p>
-          </div>
+
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
               onClick={startGame}
@@ -201,12 +195,12 @@ const Game5 = ({ onBack }: GameProps) => {
             >
               Start Game
             </button>
-            <BackButton onClick={onBack} />
+            {/* <BackButton onClick={onBack} /> */}
           </div>
         </div>
       )
     }
-    
+
     if (gameState.gameStatus === 'gameover') {
       return (
         <div style={{
@@ -251,7 +245,7 @@ const Game5 = ({ onBack }: GameProps) => {
       )
     }
   }
-  
+
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative', backgroundColor: '#000' }}>
       {/* Game UI */}
@@ -279,7 +273,7 @@ const Game5 = ({ onBack }: GameProps) => {
             <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{gameState.score}</span>
           </div>
         </div>
-        
+
         {/* Coins collected */}
         <div style={{
           padding: '1rem',
@@ -294,9 +288,9 @@ const Game5 = ({ onBack }: GameProps) => {
             {gameState.coinsCollected}
           </p>
         </div>
-        
 
-        
+
+
         {/* Lives */}
         <div style={{
           padding: '1rem',
@@ -305,15 +299,15 @@ const Game5 = ({ onBack }: GameProps) => {
           borderRadius: '8px'
         }}>
           <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-            {Array.from({ length: gameState.lives }).map((_, i) => (
+            {Array.from({ length: 3 }).map((_, i) => (
               <span
                 key={i}
                 style={{
                   fontSize: '1.5rem',
-                  color: '#ff3300'
+                  color: i < gameState.lives ? '#ff3300' : '#666666'
                 }}
               >
-                ❤️
+                {i < gameState.lives ? '❤️' : '✖️'}
               </span>
             ))}
           </div>
@@ -343,7 +337,7 @@ const Game5 = ({ onBack }: GameProps) => {
       </div>
 
       {/* 3D Canvas */}
-      <Canvas 
+      <Canvas
         camera={{ position: [0, 4, 15], fov: 60 }}
         shadows
       >

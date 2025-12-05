@@ -1,6 +1,7 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
+import { useAudio } from './useAudio'
 
 interface CameraTransitionState {
   isAnimating: boolean
@@ -21,6 +22,12 @@ interface CameraTransitionState {
 export function useCameraTransition() {
   const { camera } = useThree()
   const transitionState = useRef<CameraTransitionState | null>(null)
+  const { preloadAudio, playAudio } = useAudio()
+  
+  // Preload whoosh sound
+  useEffect(() => {
+    preloadAudio('/sounds/whoosh.mp3', 0.7)
+  }, [preloadAudio])
   
   // Single animation loop that handles both timing and animation
   useFrame((state) => {
@@ -75,6 +82,9 @@ export function useCameraTransition() {
     console.log('Current camera position:', startPosition)
     console.log('Target position (inside dark room):', targetPosition)
     
+    // Play whoosh sound for the zoom effect
+    playAudio('/sounds/whoosh.mp3')
+    
     transitionState.current = {
       isAnimating: true,
       startPosition,
@@ -86,7 +96,7 @@ export function useCameraTransition() {
       type: 'zoomIn',
       onComplete
     }
-  }, [camera])
+  }, [camera, playAudio])
   
   // Start zoom-out animation (returning from game)
   const zoomOut = useCallback((onComplete?: () => void) => {

@@ -15,7 +15,7 @@ interface HeroCharacterProps {
 export default function HeroCharacter({
   currentLane,
   bounceValue,
-  scale = 1.8
+  scale = 0.8  // Adjusted for boy3 model
 }: HeroCharacterProps) {
   const group = useRef<THREE.Group>(null)
   const [modelLoaded, setModelLoaded] = useState(false)
@@ -26,9 +26,6 @@ export default function HeroCharacter({
   try {
     const { scene, animations } = useGLTF('/models/boy3.glb')
     const { actions, names } = useAnimations(animations, group)
-
-    // console.log('scene', scene);
-    // console.log('animations', animations);
 
     useEffect(() => {
       if (animations && animations.length > 0) {
@@ -75,17 +72,17 @@ export default function HeroCharacter({
 
       // Play appropriate animation
       if (isJumping && jumpAnimation && actions[jumpAnimation]) {
-        console.log(`🦘 Playing jump animation: ${jumpAnimation}`)
+        console.log(`🦘 Boy3 jumping: ${jumpAnimation}`)
         actions[jumpAnimation]?.reset().play()
       } else if (isRunning && runAnimation && actions[runAnimation]) {
-        console.log(`🏃 Playing run animation: ${runAnimation}`)
+        console.log(`🏃 Boy3 running: ${runAnimation}`)
         actions[runAnimation]?.reset().play()
       } else if (idleAnimation && actions[idleAnimation]) {
-        console.log(`🧍 Playing idle animation: ${idleAnimation}`)
+        console.log(`🧍 Boy3 idle: ${idleAnimation}`)
         actions[idleAnimation]?.reset().play()
       } else if (names.length > 0 && actions[names[0]]) {
         // Fallback to first available animation
-        console.log(`🎭 Playing fallback animation: ${names[0]}`)
+        console.log(`🎭 Boy3 fallback animation: ${names[0]}`)
         actions[names[0]]?.reset().play()
       }
     }, [isRunning, isJumping, modelLoaded, actions, names])

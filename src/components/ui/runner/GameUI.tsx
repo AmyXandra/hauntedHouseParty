@@ -38,19 +38,12 @@ export default function GameUI({
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <h1 style={{ fontSize: '3rem', color: '#ff6600', marginBottom: '1rem' }}>
+        <h1 style={{ fontSize: '3rem', color: '#ff6600', marginBottom: '1rem', fontFamily: 'Creepster, cursive'}}>
           Haunted Runner
         </h1>
         <p style={{ color: '#ff9900', marginBottom: '2rem', textAlign: 'center' }}>
           Collect coins and dodge graves and ghosts!
         </p>
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-          <p style={{ color: '#ffcc00' }}>⬅️ ➡️ Arrow keys to switch lanes</p>
-          <p style={{ color: '#ffcc00' }}>⬆️ Up arrow to jump</p>
-          <p style={{ color: '#ffd700' }}>🪙 Collect coins for points</p>
-          <p style={{ color: '#ff6666' }}>⚰️ Avoid graves and 👻 ghosts!</p>
-          <p style={{ color: '#ff3300' }}>❤️ 3 lives total</p>
-        </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button
             onClick={onStartGame}

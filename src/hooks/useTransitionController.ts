@@ -126,7 +126,7 @@ export function useTransitionController(
   const lastUpdateTimeRef = useRef(0)
   const UPDATE_THROTTLE = 1000 / 60 // Throttle to 60fps max
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!isAnimatingRef.current) return
 
     const now = performance.now()

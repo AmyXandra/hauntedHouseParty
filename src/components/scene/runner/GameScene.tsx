@@ -52,57 +52,65 @@ export default function GameScene({
     
     const elapsed = state.clock.elapsedTime
     
-    // Spawn graves and coins every 1.5 seconds
-    if (elapsed - lastSpawnTime.current > 1.5) {
+    // Spawn graves and coins every 2 seconds for better spacing
+    if (elapsed - lastSpawnTime.current > 2.0) {
       lastSpawnTime.current = elapsed
       
       const lanes = [LEFT_LANE, MIDDLE_LANE, RIGHT_LANE]
       const shuffledLanes = [...lanes].sort(() => Math.random() - 0.5)
       
-      // Spawn 1-2 graves
-      const numGraves = Math.random() > 0.6 ? 2 : 1
+      // Spawn 1-2 graves, but leave at least one lane clear
+      const numGraves = Math.random() > 0.5 ? 1 : 2
       const newGraves: Grave[] = []
       
-      for (let i = 0; i < numGraves; i++) {
+      for (let i = 0; i < numGraves && i < 2; i++) { // Max 2 graves, leave 1 lane clear
         newGraves.push({
-          id: Math.random().toString(36),
+          id: `grave_${elapsed}_${i}`,
           lane: shuffledLanes[i],
-          position: -25  // Start further away
+          position: -30  // Start further away for better visibility
         })
       }
       
-      // Spawn coins in remaining lanes
+      // Spawn coins in remaining lanes (higher chance for better rewards)
       const newCoins: Coin[] = []
       for (let i = numGraves; i < shuffledLanes.length; i++) {
-        if (Math.random() > 0.3) { // 70% chance to spawn coin
+        if (Math.random() > 0.2) { // 80% chance to spawn coin in free lanes
           newCoins.push({
-            id: Math.random().toString(36),
+            id: `coin_${elapsed}_${i}`,
             lane: shuffledLanes[i],
-            position: -25  // Start further away
+            position: -30  // Start further away for better visibility
           })
         }
       }
       
+      // Always ensure at least one collectible or clear path
+      if (newGraves.length === 3) {
+        newGraves.pop() // Remove one grave to ensure passable lane
+      }
+      
       setGraves(prev => [...prev, ...newGraves])
       setCoins(prev => [...prev, ...newCoins])
+      
+      console.log(`🎮 Spawned ${newGraves.length} graves and ${newCoins.length} coins`)
     }
     
-    // Spawn ghost every 10-15 seconds
-    if (elapsed - lastGhostSpawn.current > (10 + Math.random() * 5)) {
+    // Spawn ghost every 8-12 seconds (more frequent for challenge)
+    if (elapsed - lastGhostSpawn.current > (8 + Math.random() * 4)) {
       lastGhostSpawn.current = elapsed
       
       const newGhost: Ghost = {
-        id: Math.random().toString(36),
+        id: `ghost_${elapsed}`,
         position: new THREE.Vector3(
           0, // Start in center, will wave across lanes
           2.5, // Flying height
-          -30 // Start much further behind
+          -35 // Start much further behind
         ),
         velocity: new THREE.Vector3(0, 0, 0), // Velocity handled in component
         lifetime: 0
       }
       
       setGhosts(prev => [...prev, newGhost])
+      console.log(`👻 Spawned ghost at ${elapsed.toFixed(1)}s`)
     }
   })
   

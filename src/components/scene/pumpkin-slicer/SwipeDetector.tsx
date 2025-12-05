@@ -25,7 +25,10 @@ export default function SwipeDetector({ gameState, onSlicePumpkin }: SwipeDetect
   const { camera, scene, gl } = useThree()
   const [swipePoints, setSwipePoints] = useState<{ x: number; y: number; time: number }[]>([])
   const [isSlicing, setIsSlicing] = useState(false)
+  const [trailOpacity, setTrailOpacity] = useState(0)
+  const [showTrail, setShowTrail] = useState(false)
   const slicedPumpkinsRef = useRef<Set<string>>(new Set())
+  const fadeTimeoutRef = useRef<number | null>(null)
   
   // Reset sliced pumpkins when new pumpkins spawn
   useEffect(() => {
@@ -53,9 +56,16 @@ export default function SwipeDetector({ gameState, onSlicePumpkin }: SwipeDetect
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       event.preventDefault()
       setIsSlicing(true)
+      setShowTrail(true)
+      setTrailOpacity(0.8)
       const pos = getPointerPosition(event)
       setSwipePoints([{ ...pos, time: Date.now() }])
       slicedPumpkinsRef.current.clear()
+      
+      // Clear any existing fade timeout
+      if (fadeTimeoutRef.current) {
+        clearTimeout(fadeTimeoutRef.current)
+      }
     }
     
     const handlePointerMove = (event: MouseEvent | TouchEvent) => {
@@ -92,7 +102,22 @@ export default function SwipeDetector({ gameState, onSlicePumpkin }: SwipeDetect
     
     const handlePointerUp = () => {
       setIsSlicing(false)
-      setSwipePoints([])
+      
+      // Start fade out animation
+      let opacity = 0.8
+      const fadeOut = () => {
+        opacity -= 0.05
+        setTrailOpacity(opacity)
+        
+        if (opacity > 0) {
+          fadeTimeoutRef.current = setTimeout(fadeOut, 16) // ~60fps
+        } else {
+          setShowTrail(false)
+          setSwipePoints([])
+        }
+      }
+      
+      fadeTimeoutRef.current = setTimeout(fadeOut, 100) // Brief pause before fade
     }
     
     const checkSliceIntersections = (points: { x: number; y: number; time: number }[]) => {
@@ -160,39 +185,50 @@ export default function SwipeDetector({ gameState, onSlicePumpkin }: SwipeDetect
       canvas.removeEventListener('touchmove', handlePointerMove)
       canvas.removeEventListener('touchend', handlePointerUp)
       canvas.removeEventListener('touchcancel', handlePointerUp)
+      
+      // Clear timeout on cleanup
+      if (fadeTimeoutRef.current) {
+        clearTimeout(fadeTimeoutRef.current)
+      }
     }
   }, [camera, scene, gl, isSlicing, onSlicePumpkin])
   
-  // Visual slice trail
-  if (swipePoints.length < 2) return null
-  
-  const positions = new Float32Array(swipePoints.length * 3)
-  swipePoints.forEach((point, i) => {
-    // Convert screen to world coordinates for trail visualization
-    const rect = gl.domElement.getBoundingClientRect()
-    const x = (point.x / rect.width) * 2 - 1
-    const y = -(point.y / rect.height) * 2 + 1
-    
-    // Project to a plane in front of camera
-    const vector = new THREE.Vector3(x, y, 0.5)
-    vector.unproject(camera)
-    
-    positions[i * 3] = vector.x
-    positions[i * 3 + 1] = vector.y
-    positions[i * 3 + 2] = vector.z
-  })
+  // Visual slice trail using spheres for better visibility
+  if (!showTrail || swipePoints.length < 1) return null
   
   return (
-    <line>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-          count={swipePoints.length}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="#ffffff" transparent opacity={0.8} />
-    </line>
+    <group>
+      {swipePoints.map((point, i) => {
+        // Convert screen to world coordinates for trail visualization
+        const rect = gl.domElement.getBoundingClientRect()
+        const x = (point.x / rect.width) * 2 - 1
+        const y = -(point.y / rect.height) * 2 + 1
+        
+        // Position trail much closer to camera for visibility
+        const distance = 2 // Close to camera
+        // Use orthographic camera scaling instead of FOV
+        const aspect = gl.domElement.width / gl.domElement.height
+        const worldX = x * distance * aspect
+        const worldY = y * distance
+        const worldZ = camera.position.z - distance
+        
+        // Make trail points fade with age
+        const age = (Date.now() - point.time) / 200
+        const scale = Math.max(0.2, 1 - age) * 0.3
+        const opacity = Math.max(0.1, trailOpacity * (1 - age * 0.3))
+        
+        return (
+          <mesh key={i} position={[worldX, worldY, worldZ]} scale={scale}>
+            <sphereGeometry args={[0.1, 8, 8]} />
+            <meshBasicMaterial 
+              color="#ffffff" 
+              transparent 
+              opacity={opacity}
+              depthTest={false}
+            />
+          </mesh>
+        )
+      })}
+    </group>
   )
 }

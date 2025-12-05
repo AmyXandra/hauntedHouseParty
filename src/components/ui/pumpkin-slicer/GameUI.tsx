@@ -26,7 +26,7 @@ export default function GameUI({ gameState }: GameUIProps) {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      backgroundColor: '#1a0f0a',
+      backgroundColor: 'transparent',
       zIndex: 10,
       pointerEvents: 'none'
     }}>
@@ -39,7 +39,11 @@ export default function GameUI({ gameState }: GameUIProps) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span>🏆</span>
-          <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{gameState.score}</span>
+          <span style={{
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            fontFamily: 'IM_Fell_English, serif'
+          }}>{gameState.score}</span>
         </div>
       </div>
 
@@ -51,13 +55,18 @@ export default function GameUI({ gameState }: GameUIProps) {
         color: '#ff9900',
         textAlign: 'center'
       }}>
-        <p style={{ fontSize: '0.8rem', margin: 0 }}>Round {gameState.round}/4</p>
-        <p style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>
-          {gameState.pumpkinsSlicedThisRound}/{gameState.totalPumpkinsThisRound}
-        </p>
-        <p style={{ fontSize: '0.7rem', margin: 0, color: '#ffcc00' }}>Sliced</p>
-        <p style={{ fontSize: '0.6rem', margin: 0, color: '#fff' }}>
-          On Screen: {gameState.pumpkins.filter(p => !p.sliced).length}
+        <p style={{
+          fontSize: '0.8rem',
+          margin: 0,
+          fontFamily: 'IM_Fell_English, serif'
+        }}>Sliced </p>
+        <p style={{
+          fontSize: '1.2rem',
+          fontWeight: 'bold',
+          margin: 0,
+          fontFamily: 'IM_Fell_English, serif'
+        }}>
+          {gameState.pumpkinsSlicedThisRound}
         </p>
       </div>
 
@@ -72,17 +81,13 @@ export default function GameUI({ gameState }: GameUIProps) {
             <span
               key={i}
               style={{
-                fontSize: '2rem',
-                color: i < gameState.lives ? '#ff3300' : '#666'
+                fontSize: '1.5rem',
+                color: i < gameState.lives ? '#ff3300' : '#666666'
               }}
             >
-              ❤️
+              {i < gameState.lives ? '❤️' : '✖️'}
             </span>
           ))}
-          {/* Debug: Show actual lives value */}
-          <span style={{ fontSize: '1rem', color: '#fff', marginLeft: '0.5rem' }}>
-            ({gameState.lives})
-          </span>
         </div>
       </div>
     </div>

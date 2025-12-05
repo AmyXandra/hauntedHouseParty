@@ -31,35 +31,37 @@ export default function CoinCollectible({
   const hasCollectedRef = useRef(false)
   const hasRemovedRef = useRef(false)
   
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!meshRef.current) return
     
-    // Move coin towards player
-    meshRef.current.position.z += RUNNING_SPEED * 60
+    // Move coin towards player with consistent speed
+    meshRef.current.position.z += RUNNING_SPEED * delta * 60
     
     // Rotate coin
     meshRef.current.rotation.y += delta * 4
     
-    // Bob up and down
-    meshRef.current.position.y = 0.8 + Math.sin(Date.now() * 0.005) * 0.2
+    // Bob up and down using elapsed time for consistency
+    meshRef.current.position.y = 0.8 + Math.sin(state.clock.elapsedTime * 3) * 0.2
     
     // Check collection with hero (at z = HERO_Z_POSITION)
-    if (!hasCollectedRef.current && 
-        Math.abs(meshRef.current.position.z - HERO_Z_POSITION) < 0.5 &&
-        Math.abs(meshRef.current.position.x - coin.lane) < 0.6) {
+    const zDistance = Math.abs(meshRef.current.position.z - HERO_Z_POSITION)
+    const xDistance = Math.abs(meshRef.current.position.x - coin.lane)
+    
+    if (!hasCollectedRef.current && zDistance < 0.6 && xDistance < 0.8) {
       hasCollectedRef.current = true
+      console.log(`🪙 COIN COLLECTED! Coin ${coin.id} at position ${meshRef.current.position.x.toFixed(2)} - Z:${zDistance.toFixed(2)} X:${xDistance.toFixed(2)}`)
       onCollect(coin.id)
     }
     
     // Remove if past player (without triggering collection)
-    if (!hasRemovedRef.current && meshRef.current.position.z > HERO_Z_POSITION + 2) {
+    if (!hasRemovedRef.current && meshRef.current.position.z > HERO_Z_POSITION + 3) {
       hasRemovedRef.current = true
       onRemove(coin.id)
     }
   })
   
   // Load coin model
-  const { scene } = useGLTF('/models/coin2.glb')
+  const { scene } = useGLTF('/models/coin.glb')
   const clonedScene = useMemo(() => scene.clone(), [scene])
   
   return (
@@ -74,6 +76,6 @@ export default function CoinCollectible({
 }
 
 // Preload the coin model
-useGLTF.preload('/models/coin2.glb')
+useGLTF.preload('/models/coin.glb')
 
 export type { Coin }

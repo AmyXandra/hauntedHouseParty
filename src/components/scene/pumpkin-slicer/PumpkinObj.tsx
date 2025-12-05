@@ -19,7 +19,7 @@ interface PumpkinObjProps {
 
 export default function PumpkinObj({ pumpkin, onRemove }: PumpkinObjProps) {
   const meshRef = useRef<THREE.Group>(null)
-  const { scene } = useGLTF('/models/pumpkin.glb')
+  const { scene } = useGLTF('/models/pumkin2.glb')
   
   useFrame((_, delta) => {
     if (!meshRef.current || pumpkin.sliced) return
@@ -50,8 +50,8 @@ export default function PumpkinObj({ pumpkin, onRemove }: PumpkinObjProps) {
     return (
       <group ref={meshRef} scale={Math.max(0, scale)}>
         {/* Sliced pumpkin halves */}
-        <primitive object={scene.clone()} position={[-0.2, 0, 0]} rotation={[0, 0, 0.3]} scale={4} />
-        <primitive object={scene.clone()} position={[0.2, 0, 0]} rotation={[0, 0, -0.3]} scale={4} />
+        <primitive object={scene.clone()} position={[-0.2, 0, 0]} rotation={[0, 0, 0.3]} scale={0.5} />
+        {/* <primitive object={scene.clone()} position={[0.2, 0, 0]} rotation={[0, 0, -0.3]} scale={2} /> */}
       </group>
     )
   }
@@ -61,18 +61,18 @@ export default function PumpkinObj({ pumpkin, onRemove }: PumpkinObjProps) {
       {/* 3D Pumpkin model */}
       <primitive 
         object={scene.clone()} 
-        scale={4.5}
+        scale={1.3}
       />
       
       {pumpkin.isHalo && (
         <>
           <mesh position={[0, 2.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[1.2, 0.3, 8, 16]} />
+            <torusGeometry args={[1.2, 0.1, 16, 32]} />
             <meshStandardMaterial color="#ffd700" emissive="#ffff00" emissiveIntensity={2} />
           </mesh>
           {/* Halo glow effect */}
           <mesh position={[0, 2.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[1.4, 0.4, 8, 16]} />
+            <torusGeometry args={[1.0, 0.08, 16, 32]} />
             <meshBasicMaterial 
               color="#ffff00" 
               transparent 
