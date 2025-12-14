@@ -11,6 +11,8 @@ import InnerDoor from './InnerDoor'
  * Container for the main haunted house structure
  */
 export default function House({ onDoorClick, knockCount = 0, isListening = false, triggerNavigation }: HouseProps & { triggerNavigation?: () => void }) {
+  // OPTIMIZATION: Load textures once here instead of in parent
+  // This prevents duplicate loading and allows lazy loading
   const { wallTextures, roofTextures, bushTextures, doorTextures } =
     useTextures()
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -70,19 +70,23 @@ export default function HauntedHousePage() {
         }}
         shadows
         gl={{
-          antialias: true,
+          antialias: false, // OPTIMIZATION: Disable for memory savings (~20MB)
           toneMapping: 2, // THREE.ACESFilmicToneMapping
           toneMappingExposure: 1,
+          powerPreference: 'high-performance',
         }}
-        dpr={[1, 2]} // Cap pixel ratio at 2 for performance
+        dpr={[1, 1.5]} // OPTIMIZATION: Reduced from 2 for memory savings (~30MB)
       >
-        <SceneContent 
-          onDoorClick={handleKnock} 
-          knockCount={knockCount} 
-          isListening={isListening}
-          shouldZoomOut={shouldZoomOut}
-          triggerNavigation={triggerNavigation}
-        />
+        {/* OPTIMIZATION: Suspense allows intro animation to start while textures load in background */}
+        <Suspense fallback={<LoadingFallback />}>
+          <SceneContent 
+            onDoorClick={handleKnock} 
+            knockCount={knockCount} 
+            isListening={isListening}
+            shouldZoomOut={shouldZoomOut}
+            triggerNavigation={triggerNavigation}
+          />
+        </Suspense>
       </Canvas>
       
       {/* UI Overlay */}
@@ -95,6 +99,23 @@ export default function HauntedHousePage() {
  * Scene content component that uses hooks
  * Separated to allow hooks to be used within Canvas context
  */
+/**
+ * Loading fallback component shown while textures load
+ */
+function LoadingFallback() {
+  return (
+    <Scene>
+      <Sky />
+      <Lights />
+      {/* Simple placeholder while textures load */}
+      <mesh rotation-x={-Math.PI / 2} receiveShadow>
+        <planeGeometry args={[20, 20]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+      </mesh>
+    </Scene>
+  )
+}
+
 function SceneContent({ 
   onDoorClick, 
   knockCount, 

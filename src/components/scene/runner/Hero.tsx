@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 const HERO_BASE_Y = 0.5
-const HERO_Z_POSITION = 8  // Position hero in front of camera (camera at z=18)
+const HERO_Z_POSITION = 5  // Position hero in front of camera (camera at z=15)
 
 interface HeroProps {
   currentLane: number

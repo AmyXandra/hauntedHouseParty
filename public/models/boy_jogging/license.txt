@@ -1,0 +1,11 @@
+Model Information:
+* title:	Boy Jogging
+* source:	https://sketchfab.com/3d-models/boy-jogging-a12db611eec947e0900e1914dd4bc455
+* author:	Justin Rajan (https://sketchfab.com/justin.rajan.6619)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Boy Jogging" (https://sketchfab.com/3d-models/boy-jogging-a12db611eec947e0900e1914dd4bc455) by Justin Rajan (https://sketchfab.com/justin.rajan.6619) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -68,7 +68,7 @@ export default function CoinCollectible({
   })
   
   // Load coin model
-  const { scene } = useGLTF('/models/coin.glb')
+  const { scene } = useGLTF('/models/stylized_coin/scene.gltf')
   const clonedScene = useMemo(() => scene.clone(), [scene])
   
   return (
@@ -82,7 +82,7 @@ export default function CoinCollectible({
   )
 }
 
-// Preload the coin model
-useGLTF.preload('/models/coin.glb')
+// OPTIMIZATION: Load on-demand instead of preloading
+// useGLTF.preload('/models/coin.glb')
 
 export type { Coin }

@@ -70,10 +70,10 @@ export default function GraveObstacle({
   return (
     <group ref={groupRef} position={[grave.lane, 0, grave.position]} rotation={graveRotation}>
       {/* Simple grave geometry - better performance than textured Grave component */}
-      <group>
+      <group scale={1.15}>
         {/* Grave base */}
         <mesh position={[0, 0.3, 0]} castShadow>
-          <boxGeometry args={[0.8, 0.6, 0.2]} />
+          <boxGeometry args={[1.0, 0.8, 0.2]} />
           <meshStandardMaterial color="#444444" roughness={0.9} />
         </mesh>
         

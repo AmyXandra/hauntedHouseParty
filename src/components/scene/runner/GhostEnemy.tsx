@@ -184,7 +184,7 @@ export default function GhostEnemy({
   )
 }
 
-// Preload the ghost model
-useGLTF.preload('/models/ghost.glb')
+// OPTIMIZATION: Load on-demand instead of preloading
+// useGLTF.preload('/models/ghost.glb')
 
 export type { Ghost }

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useLoader } from '@react-three/fiber'
+import { useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import PumpkinObj from './PumpkinObj'
 import BatObj from './BatObj'
@@ -43,11 +43,35 @@ export default function GameScene({
   onRemoveParticle,
   onRemoveScorePopup
 }: GameSceneProps) {
+  // Get viewport dimensions for cover effect
+  const { viewport } = useThree()
+
   // Load PNG background texture
   const backgroundTexture = useLoader(
     THREE.TextureLoader,
-    '/images/pumpkin-slicer-bg.png' // Replace with your PNG path
+    '/images/pumpkin-slicer-bg.png'
   )
+
+  // Calculate dimensions for CSS-like background-size: cover effect
+  const backgroundDimensions = useMemo(() => {
+    // Get texture aspect ratio
+    const textureAspect = backgroundTexture.image.width / backgroundTexture.image.height
+    const viewportAspect = viewport.width / viewport.height
+
+    let width = viewport.width
+    let height = viewport.height
+
+    // Cover logic: scale to fill viewport while maintaining aspect ratio
+    if (viewportAspect > textureAspect) {
+      // Viewport is wider than texture - fit to width
+      height = width / textureAspect
+    } else {
+      // Viewport is taller than texture - fit to height
+      width = height * textureAspect
+    }
+
+    return { width, height }
+  }, [backgroundTexture, viewport.width, viewport.height])
 
   // Configure background texture
   useMemo(() => {
@@ -66,9 +90,9 @@ export default function GameScene({
       <pointLight position={[10, 10, 10]} intensity={0.5} />
       <pointLight position={[-10, -10, -10]} intensity={0.3} />
 
-      {/* PNG background backdrop - positioned far back, full width */}
+      {/* PNG background backdrop with cover effect */}
       <mesh position={[0, 0, -10]}>
-        <planeGeometry args={[100, 20]} />
+        <planeGeometry args={[backgroundDimensions.width, backgroundDimensions.height]} />
         <meshBasicMaterial
           map={backgroundTexture}
           transparent={true}

@@ -48,7 +48,7 @@ export default function MenuScreen({ onStartGame, onBack }: MenuScreenProps) {
         >
           Start Game
         </button>
-        <BackButton onClick={onBack} />
+        {/* <BackButton onClick={onBack} /> */}
       </div>
     </div>
   )

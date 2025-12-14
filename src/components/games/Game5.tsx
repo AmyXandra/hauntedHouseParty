@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { GameProps } from '../../types'
 import GameScene, { type GameState } from '../scene/runner/GameScene'
 import BackButton from '../ui/BackButton'
+import GameOverModal from '../ui/GameOverModal'
 
 // Game constants
 const GRAVITY = 0.008
@@ -201,49 +202,7 @@ const Game5 = ({ onBack }: GameProps) => {
       )
     }
 
-    if (gameState.gameStatus === 'gameover') {
-      return (
-        <div style={{
-          padding: '2rem',
-          color: 'white',
-          backgroundColor: '#2d0a0a',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <h1 style={{ fontSize: '3rem', color: '#ff3300', marginBottom: '1rem' }}>
-            Game Over!
-          </h1>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <p style={{ fontSize: '1.5rem', color: '#ff9900', marginBottom: '0.5rem' }}>
-              Final Score
-            </p>
-            <p style={{ fontSize: '3rem', color: '#ff6600', fontWeight: 'bold' }}>
-              {gameState.score}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button
-              onClick={resetGame}
-              style={{
-                padding: '1rem 2rem',
-                backgroundColor: '#ff6600',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1.2rem',
-                cursor: 'pointer'
-              }}
-            >
-              Play Again
-            </button>
-            <BackButton onClick={onBack} />
-          </div>
-        </div>
-      )
-    }
+
   }
 
   return (
@@ -340,6 +299,12 @@ const Game5 = ({ onBack }: GameProps) => {
       <Canvas
         camera={{ position: [0, 4, 15], fov: 60 }}
         shadows
+        gl={{
+          antialias: false, // Disable for memory savings
+          powerPreference: 'high-performance',
+          alpha: false,
+        }}
+        dpr={[1, 1.5]} // Limit pixel ratio for memory savings
       >
         <GameScene
           gameState={gameState}
@@ -348,6 +313,14 @@ const Game5 = ({ onBack }: GameProps) => {
           bounceValue={bounceValueRef.current}
         />
       </Canvas>
+
+      {/* Game Over Modal */}
+      <GameOverModal
+        score={gameState.score}
+        onReplay={resetGame}
+        onHome={onBack}
+        isVisible={gameState.gameStatus === 'gameover'}
+      />
     </div>
   )
 }

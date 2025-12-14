@@ -162,8 +162,8 @@ export default function GameScene({
         intensity={0.7}
         color="#ff6600"
         castShadow
-        shadow-mapSize-width={256}
-        shadow-mapSize-height={256}
+        shadow-mapSize-width={128}
+        shadow-mapSize-height={128}
         shadow-camera-near={1}
         shadow-camera-far={20}
         shadow-camera-left={-6}

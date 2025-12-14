@@ -7,7 +7,7 @@ import BackButton from '../ui/BackButton'
 import GameScene from '../scene/pumpkin-slicer/GameScene'
 import GameUI from '../ui/pumpkin-slicer/GameUI'
 import MenuScreen from '../ui/pumpkin-slicer/MenuScreen'
-import GameOverScreen from '../ui/pumpkin-slicer/GameOverScreen'
+import GameOverModal from '../ui/GameOverModal'
 
 
 /**
@@ -282,15 +282,7 @@ const Game4 = ({ onBack }: GameProps) => {
     return <MenuScreen onStartGame={startGame} onBack={onBack} />
   }
 
-  if (gameState.gameStatus === 'gameover') {
-    return (
-      <GameOverScreen
-        gameState={gameState}
-        onResetGame={resetGame}
-        onBack={onBack}
-      />
-    )
-  }
+
 
   return (
     <div style={{
@@ -327,6 +319,14 @@ const Game4 = ({ onBack }: GameProps) => {
           onRemoveScorePopup={removeScorePopup}
         />
       </Canvas>
+
+      {/* Game Over Modal */}
+      <GameOverModal
+        score={gameState.score}
+        onReplay={resetGame}
+        onHome={onBack}
+        isVisible={gameState.gameStatus === 'gameover'}
+      />
     </div>
   )
 }

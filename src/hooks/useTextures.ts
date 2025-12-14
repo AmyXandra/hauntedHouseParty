@@ -17,10 +17,10 @@ export const useTextures = () => {
     floorDisplacementTexture,
   ] = useLoader(THREE.TextureLoader, [
     '/floor/alpha.webp',
-    './floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.webp',
-    './floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.webp',
-    './floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.webp',
-    './floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.webp',
+    '/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.webp',
+    '/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.webp',
+    '/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.webp',
+    '/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.webp',
   ])
 
   // Configure floor textures
@@ -44,9 +44,9 @@ export const useTextures = () => {
   const [wallColorTexture, wallARMTexture, wallNormalTexture] = useLoader(
     THREE.TextureLoader,
     [
-      './wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.webp',
-      './wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.webp',
-      './wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.webp',
+      '/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.webp',
+      '/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.webp',
+      '/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.webp',
     ]
   )
 
@@ -56,9 +56,9 @@ export const useTextures = () => {
   const [roofColorTexture, roofARMTexture, roofNormalTexture] = useLoader(
     THREE.TextureLoader,
     [
-      './roof/roof_slates_02_1k/roof_slates_02_diff_1k.webp',
-      './roof/roof_slates_02_1k/roof_slates_02_arm_1k.webp',
-      './roof/roof_slates_02_1k/roof_slates_02_nor_gl_1k.webp',
+      '/roof/roof_slates_02_1k/roof_slates_02_diff_1k.webp',
+      '/roof/roof_slates_02_1k/roof_slates_02_arm_1k.webp',
+      '/roof/roof_slates_02_1k/roof_slates_02_nor_gl_1k.webp',
     ]
   )
 
@@ -75,9 +75,9 @@ export const useTextures = () => {
   const [bushColorTexture, bushARMTexture, bushNormalTexture] = useLoader(
     THREE.TextureLoader,
     [
-      './bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.webp',
-      './bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.webp',
-      './bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.webp',
+      '/bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.webp',
+      '/bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.webp',
+      '/bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.webp',
     ]
   )
 
@@ -94,9 +94,9 @@ export const useTextures = () => {
   const [graveColorTexture, graveARMTexture, graveNormalTexture] = useLoader(
     THREE.TextureLoader,
     [
-      './grave/plastered_stone_wall_1k/plastered_stone_wall_diff_1k.webp',
-      './grave/plastered_stone_wall_1k/plastered_stone_wall_arm_1k.webp',
-      './grave/plastered_stone_wall_1k/plastered_stone_wall_nor_gl_1k.webp',
+      '/grave/plastered_stone_wall_1k/plastered_stone_wall_diff_1k.webp',
+      '/grave/plastered_stone_wall_1k/plastered_stone_wall_arm_1k.webp',
+      '/grave/plastered_stone_wall_1k/plastered_stone_wall_nor_gl_1k.webp',
     ]
   )
 
@@ -115,13 +115,13 @@ export const useTextures = () => {
     doorMetalnessTexture,
     doorRoughnessTexture,
   ] = useLoader(THREE.TextureLoader, [
-    './door/color.webp',
-    './door/ambientOcclusion.webp',
-    './door/normal.webp',
-    './door/alpha.webp',
-    './door/height.webp',
-    './door/metalness.webp',
-    './door/roughness.webp',
+    '/door/color.webp',
+    '/door/ambientOcclusion.webp',
+    '/door/normal.webp',
+    '/door/alpha.webp',
+    '/door/height.webp',
+    '/door/metalness.webp',
+    '/door/roughness.webp',
   ])
 
   doorColorTexture.colorSpace = THREE.SRGBColorSpace
