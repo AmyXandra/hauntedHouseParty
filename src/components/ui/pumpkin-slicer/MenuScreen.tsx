@@ -1,11 +1,12 @@
-import BackButton from '../BackButton'
+// import BackButton from '../BackButton'
 
 interface MenuScreenProps {
   onStartGame: () => void
   onBack: () => void
 }
 
-export default function MenuScreen({ onStartGame, onBack }: MenuScreenProps) {
+// export default function MenuScreen({ onStartGame, onBack }: MenuScreenProps) {
+export default function MenuScreen({ onStartGame }: MenuScreenProps) {
   return (
     <div style={{
       padding: '2rem',

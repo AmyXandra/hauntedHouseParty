@@ -80,7 +80,7 @@ export default function HeroCharacter({
       currentAction.current = next
     }
   }, [hitAnimationActive, isJumping, modelLoaded, actions])
-  
+
   // useEffect(() => {
   //   if (!modelLoaded || !actions) return
 
@@ -118,7 +118,7 @@ export default function HeroCharacter({
     if (!group.current) return
 
     // Debug: Log position changes
-    const oldX = group.current.position.x
+    // const oldX = group.current.position.x
 
     // Smooth lane switching (same as original Hero component)
     group.current.position.x = THREE.MathUtils.lerp(
