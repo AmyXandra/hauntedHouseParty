@@ -51,12 +51,12 @@ export default function GraveObstacle({
     
     // Debug: Log position every few frames for first few seconds
     if (grave.id.includes('grave_') && groupRef.current.position.z > -20 && groupRef.current.position.z < -15) {
-      console.log(`⚰️ Grave ${grave.id} moving: Z=${groupRef.current.position.z.toFixed(1)}, X=${groupRef.current.position.x.toFixed(1)}, Hero lane=${currentLane}`)
+      // console.log(`⚰️ Grave ${grave.id} moving: Z=${groupRef.current.position.z.toFixed(1)}, X=${groupRef.current.position.x.toFixed(1)}, Hero lane=${currentLane}`)
     }
     
     if (!hasCollidedRef.current && zDistance < 0.8 && xDistance < 0.6) {
       hasCollidedRef.current = true
-      console.log(`⚰️ GRAVE COLLISION! Grave ${grave.id} at position ${groupRef.current.position.x.toFixed(2)} vs hero at lane ${currentLane} - Z:${zDistance.toFixed(2)} X:${xDistance.toFixed(2)}`)
+      // console.log(`⚰️ GRAVE COLLISION! Grave ${grave.id} at position ${groupRef.current.position.x.toFixed(2)} vs hero at lane ${currentLane} - Z:${zDistance.toFixed(2)} X:${xDistance.toFixed(2)}`)
       onCollision(grave.id, 'grave')
     }
     

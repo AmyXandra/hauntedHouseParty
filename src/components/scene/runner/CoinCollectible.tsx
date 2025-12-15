@@ -51,12 +51,12 @@ export default function CoinCollectible({
     
     // Debug: Log position every few frames for first few seconds
     if (coin.id.includes('coin_') && meshRef.current.position.z > -20 && meshRef.current.position.z < -15) {
-      console.log(`🪙 Coin ${coin.id} moving: Z=${meshRef.current.position.z.toFixed(1)}, X=${meshRef.current.position.x.toFixed(1)}`)
+      // console.log(`🪙 Coin ${coin.id} moving: Z=${meshRef.current.position.z.toFixed(1)}, X=${meshRef.current.position.x.toFixed(1)}`)
     }
     
     if (!hasCollectedRef.current && zDistance < 0.6 && xDistance < 0.8) {
       hasCollectedRef.current = true
-      console.log(`🪙 COIN COLLECTED! Coin ${coin.id} at position ${meshRef.current.position.x.toFixed(2)} - Z:${zDistance.toFixed(2)} X:${xDistance.toFixed(2)}`)
+      // console.log(`🪙 COIN COLLECTED! Coin ${coin.id} at position ${meshRef.current.position.x.toFixed(2)} - Z:${zDistance.toFixed(2)} X:${xDistance.toFixed(2)}`)
       onCollect(coin.id)
     }
     

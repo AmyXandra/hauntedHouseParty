@@ -28,16 +28,18 @@ const Game5 = ({ onBack }: GameProps) => {
     coinsCollected: 0
   })
 
+  const [isHeroHit, setIsHeroHit] = useState(false)
+
   const bounceValueRef = useRef(0)
   const velocityRef = useRef(0)
-  
+
   // High score tracking
   const { highScore, updateHighScore } = useHighScore('tomb-runner')
 
   // Debug: Monitor lives changes
-  useEffect(() => {
-    console.log(`💖 LIVES CHANGED TO: ${gameState.lives}`)
-  }, [gameState.lives])
+  // useEffect(() => {
+  //   console.log(`💖 LIVES CHANGED TO: ${gameState.lives}`)
+  // }, [gameState.lives])
 
   // Handle keyboard input
   useEffect(() => {
@@ -63,6 +65,7 @@ const Game5 = ({ onBack }: GameProps) => {
       }
 
       if (shouldJump) {
+        // console.log(`🎮 Lane change: ${gameState.currentLane} → ${newLane}`)
         setGameState(prev => ({
           ...prev,
           currentLane: newLane,
@@ -121,29 +124,31 @@ const Game5 = ({ onBack }: GameProps) => {
   const collisionCooldownRef = useRef(0)
 
   const handleCollision = (_id: string, _type: 'grave' | 'ghost') => {
-    console.log(`🎯 COLLISION HANDLER CALLED! Type: ${_type}, ID: ${_id}`)
-    console.log(`🎯 Current lives BEFORE collision: ${gameState.lives}`)
+    // console.log(`🎯 COLLISION HANDLER CALLED! Type: ${_type}, ID: ${_id}`)
+    // console.log(`🎯 Current lives BEFORE collision: ${gameState.lives}`)
 
     // Prevent multiple collisions in quick succession
     const now = Date.now()
     if (now - collisionCooldownRef.current < 500) { // 500ms cooldown
-      console.log(`🚫 COLLISION IGNORED (cooldown) - Type: ${_type}, ID: ${_id}`)
+      // console.log(`🚫 COLLISION IGNORED (cooldown) - Type: ${_type}, ID: ${_id}`)
       return
     }
     collisionCooldownRef.current = now
 
-    console.log(`🔥 COLLISION ACCEPTED! Type: ${_type}, ID: ${_id}`) // Debug log
-    console.log(`🔥 Current game state:`, {
-      lives: gameState.lives,
-      currentLane: gameState.currentLane,
-      isJumping: gameState.isJumping,
-      bounceValue: bounceValueRef.current
-    })
+    // console.log(`🔥 COLLISION ACCEPTED! Type: ${_type}, ID: ${_id}`)
+
+    // Trigger hit animation
+    setIsHeroHit(true)
+
+    // Reset hit animation after 1 second
+    setTimeout(() => {
+      setIsHeroHit(false)
+    }, 1000)
 
     setGameState(prev => {
       const newLives = prev.lives - 1
       const isGameOver = newLives <= 0
-      
+
       // Update high score when game ends
       if (isGameOver) {
         const isNewHighScore = updateHighScore(prev.score)
@@ -151,9 +156,9 @@ const Game5 = ({ onBack }: GameProps) => {
           console.log(`🏆 NEW HIGH SCORE: ${prev.score}!`)
         }
       }
-      
-      console.log(`🔥 Lives reduced from ${prev.lives} to ${newLives}`)
-      console.log(`🔥 Game status will be: ${isGameOver ? 'gameover' : 'playing'}`)
+
+      // console.log(`🔥 Lives reduced from ${prev.lives} to ${newLives}`)
+      // console.log(`🔥 Game status will be: ${isGameOver ? 'gameover' : 'playing'}`)
       return {
         ...prev,
         lives: newLives,
@@ -163,7 +168,7 @@ const Game5 = ({ onBack }: GameProps) => {
   }
 
   const handleCoinCollect = (_id: string) => {
-    console.log('Coin collected! Adding 10 points') // Debug log
+    // console.log('Coin collected! Adding 10 points') // Debug log
     setGameState(prev => ({
       ...prev,
       score: prev.score + 10,
@@ -325,6 +330,7 @@ const Game5 = ({ onBack }: GameProps) => {
           onCollision={handleCollision}
           onCoinCollect={handleCoinCollect}
           bounceValue={bounceValueRef.current}
+          isHeroHit={isHeroHit}
         />
       </Canvas>
 

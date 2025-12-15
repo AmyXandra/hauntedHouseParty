@@ -8,6 +8,7 @@ import GameScene from '../scene/pumpkin-slicer/GameScene'
 import GameUI from '../ui/pumpkin-slicer/GameUI'
 import MenuScreen from '../ui/pumpkin-slicer/MenuScreen'
 import GameOverModal from '../ui/GameOverModal'
+import { useHighScore } from '../../hooks/useHighScore'
 
 
 /**
@@ -30,6 +31,9 @@ const Game4 = ({ onBack }: GameProps) => {
     pumpkinsSlicedThisRound: 0,
     totalPumpkinsThisRound: 0
   })
+
+  // High score tracking
+  const { highScore, updateHighScore } = useHighScore('pumpkin-slicer')
 
   // Game actions
   const startGame = () => {
@@ -90,6 +94,29 @@ const Game4 = ({ onBack }: GameProps) => {
     }))
   }
 
+  const addBombNaturally = () => {
+    const id = Math.random().toString(36)
+    const bomb: Bomb = {
+      id,
+      position: new THREE.Vector3(
+        (Math.random() - 0.5) * 10,
+        -4,
+        (Math.random() - 0.5) * 6
+      ),
+      velocity: new THREE.Vector3(
+        (Math.random() - 0.5) * 0.09,
+        0.18 + Math.random() * 0.08,
+        (Math.random() - 0.5) * 0.04
+      ),
+      lifetime: 0
+    }
+
+    setGameState(prev => ({
+      ...prev,
+      bombs: [...prev.bombs, bomb]
+    }))
+  }
+
   const addPumpkinBatch = (count: number) => {
     for (let i = 0; i < count; i++) {
       setTimeout(() => addPumpkin(), i * 200)
@@ -131,24 +158,7 @@ const Game4 = ({ onBack }: GameProps) => {
     }))
   }
 
-  const addBomb = (position: THREE.Vector3) => {
-    const id = Math.random().toString(36)
-    const bomb: Bomb = {
-      id,
-      position: position.clone().add(new THREE.Vector3(0, -0.5, 0)),
-      velocity: new THREE.Vector3(
-        (Math.random() - 0.5) * 0.15,
-        0.05 + Math.random() * 0.05,
-        (Math.random() - 0.5) * 0.15
-      ),
-      lifetime: 0
-    }
 
-    setGameState(prev => ({
-      ...prev,
-      bombs: [...prev.bombs, bomb]
-    }))
-  }
 
   const slicePumpkin = (id: string, position: THREE.Vector3) => {
     const pumpkin = gameState.pumpkins.find(p => p.id === id)
@@ -185,10 +195,6 @@ const Game4 = ({ onBack }: GameProps) => {
       for (let i = 0; i < 3; i++) {
         setTimeout(() => addBat(position), i * 100)
       }
-
-      if (Math.random() < 0.3) {
-        addBomb(position)
-      }
     }
 
     setTimeout(() => {
@@ -202,10 +208,20 @@ const Game4 = ({ onBack }: GameProps) => {
   const explodeBomb = (id: string, _position: THREE.Vector3) => {
     setGameState(prev => {
       const newLives = prev.lives - 1
+      const isGameOver = newLives <= 0
+      
+      // Update high score when game ends
+      if (isGameOver) {
+        const isNewHighScore = updateHighScore(prev.score)
+        if (isNewHighScore) {
+          console.log(`🏆 NEW HIGH SCORE: ${prev.score}!`)
+        }
+      }
+      
       return {
         ...prev,
         lives: newLives,
-        gameStatus: newLives <= 0 ? 'gameover' : prev.gameStatus,
+        gameStatus: isGameOver ? 'gameover' : prev.gameStatus,
         bombs: prev.bombs.filter(b => b.id !== id)
       }
     })
@@ -215,10 +231,20 @@ const Game4 = ({ onBack }: GameProps) => {
     if (missed) {
       setGameState(prev => {
         const newLives = prev.lives - 1
+        const isGameOver = newLives <= 0
+        
+        // Update high score when game ends
+        if (isGameOver) {
+          const isNewHighScore = updateHighScore(prev.score)
+          if (isNewHighScore) {
+            console.log(`🏆 NEW HIGH SCORE: ${prev.score}!`)
+          }
+        }
+        
         return {
           ...prev,
           lives: newLives,
-          gameStatus: newLives <= 0 ? 'gameover' : prev.gameStatus,
+          gameStatus: isGameOver ? 'gameover' : prev.gameStatus,
           pumpkins: prev.pumpkins.filter(p => p.id !== id)
         }
       })
@@ -258,25 +284,32 @@ const Game4 = ({ onBack }: GameProps) => {
     }))
   }
 
-  // Infinite spawn system - continuously spawn pumpkins
+  // Infinite spawn system - continuously spawn pumpkins and occasional bombs
   useEffect(() => {
     if (gameState.gameStatus !== 'playing') return
 
-    const maxOnScreen = 5
+    const maxPumpkinsOnScreen = 5
     const spawnInterval = 1500
     const batchSize = 2
 
     const interval = setInterval(() => {
-      const currentCount = gameState.pumpkins.filter(p => !p.sliced).length
+      const currentPumpkinCount = gameState.pumpkins.filter(p => !p.sliced).length
+      const currentBombCount = gameState.bombs.length
 
-      if (currentCount < maxOnScreen) {
-        const spawnCount = Math.min(batchSize, maxOnScreen - currentCount)
+      // Spawn pumpkins if below max
+      if (currentPumpkinCount < maxPumpkinsOnScreen) {
+        const spawnCount = Math.min(batchSize, maxPumpkinsOnScreen - currentPumpkinCount)
         addPumpkinBatch(spawnCount)
+      }
+
+      // Spawn bomb occasionally (10% chance) but only if no bomb is currently on screen
+      if (currentBombCount === 0 && Math.random() < 0.1) {
+        setTimeout(() => addBombNaturally(), Math.random() * 1000) // Random delay 0-1s
       }
     }, spawnInterval)
 
     return () => clearInterval(interval)
-  }, [gameState.pumpkins.length, gameState.gameStatus])
+  }, [gameState.pumpkins.length, gameState.bombs.length, gameState.gameStatus])
 
   if (gameState.gameStatus === 'menu') {
     return <MenuScreen onStartGame={startGame} onBack={onBack} />
@@ -323,6 +356,7 @@ const Game4 = ({ onBack }: GameProps) => {
       {/* Game Over Modal */}
       <GameOverModal
         score={gameState.score}
+        highScore={highScore}
         onReplay={resetGame}
         onHome={onBack}
         isVisible={gameState.gameStatus === 'gameover'}

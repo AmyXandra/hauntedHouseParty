@@ -228,10 +228,10 @@ export default function EnvironmentDecorations() {
     //   }
     // }
     
-    console.log(`Generated layered decorations:`)
-    console.log(`- Foreground pumpkins: ${foregroundPumpkinItems.length}`)
-    console.log(`- Background trees: ${backgroundTreeItems.length}`)
-    console.log(`- Forest trees: ${forestTreeItems.length}`)
+    // console.log(`Generated layered decorations:`)
+    // console.log(`- Foreground pumpkins: ${foregroundPumpkinItems.length}`)
+    // console.log(`- Background trees: ${backgroundTreeItems.length}`)
+    // console.log(`- Forest trees: ${forestTreeItems.length}`)
     return { 
       foregroundPumpkins: foregroundPumpkinItems, 
       backgroundTrees: backgroundTreeItems,

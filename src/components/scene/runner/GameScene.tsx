@@ -28,6 +28,7 @@ interface GameSceneProps {
   onCollision: (id: string, type: 'grave' | 'ghost') => void
   onCoinCollect: (id: string) => void
   bounceValue: number
+  isHeroHit?: boolean
 }
 
 /**
@@ -38,7 +39,8 @@ export default function GameScene({
   gameState,
   onCollision,
   onCoinCollect,
-  bounceValue
+  bounceValue,
+  isHeroHit = false
 }: GameSceneProps) {
   const [graves, setGraves] = useState<Grave[]>([])
   const [coins, setCoins] = useState<Coin[]>([])
@@ -91,9 +93,9 @@ export default function GameScene({
       setGraves(prev => [...prev, ...newGraves])
       setCoins(prev => [...prev, ...newCoins])
       
-      console.log(`🎮 Spawned ${newGraves.length} graves and ${newCoins.length} coins at time ${elapsed.toFixed(1)}s`)
-      console.log('Grave positions:', newGraves.map(g => `Lane ${g.lane}, Z ${g.position}`))
-      console.log('Coin positions:', newCoins.map(c => `Lane ${c.lane}, Z ${c.position}`))
+      // console.log(`🎮 Spawned ${newGraves.length} graves and ${newCoins.length} coins at time ${elapsed.toFixed(1)}s`)
+      // console.log('Grave positions:', newGraves.map(g => `Lane ${g.lane}, Z ${g.position}`))
+      // console.log('Coin positions:', newCoins.map(c => `Lane ${c.lane}, Z ${c.position}`))
     }
     
     // Spawn ghost every 8-12 seconds (more frequent for challenge)
@@ -112,7 +114,7 @@ export default function GameScene({
       }
       
       setGhosts(prev => [...prev, newGhost])
-      console.log(`👻 Spawned ghost at ${elapsed.toFixed(1)}s`)
+      // console.log(`👻 Spawned ghost at ${elapsed.toFixed(1)}s`)
     }
   })
   
@@ -122,7 +124,7 @@ export default function GameScene({
   }
   
   const handleGraveRemove = (id: string) => {
-    console.log('Grave removed (missed)', id)
+    // console.log('Grave removed (missed)', id)
     setGraves(prev => prev.filter(g => g.id !== id))
   }
   
@@ -132,18 +134,18 @@ export default function GameScene({
   }
   
   const handleGhostRemove = (id: string) => {
-    console.log('Ghost removed (missed)', id)
+    // console.log('Ghost removed (missed)', id)
     setGhosts(prev => prev.filter(g => g.id !== id))
   }
   
   const handleCoinCollect = (id: string) => {
-    console.log('Coin collected!', id)
+    // console.log('Coin collected!', id)
     setCoins(prev => prev.filter(c => c.id !== id))
     onCoinCollect(id)
   }
   
   const handleCoinRemove = (id: string) => {
-    console.log('Coin removed (missed)', id)
+    // console.log('Coin removed (missed)', id)
     setCoins(prev => prev.filter(c => c.id !== id))
   }
   
@@ -188,6 +190,7 @@ export default function GameScene({
       <HeroCharacter 
         currentLane={gameState.currentLane} 
         bounceValue={bounceValue}
+        isHit={isHeroHit}
       />
       
       {graves.map(grave => (
