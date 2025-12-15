@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import * as THREE from 'three'
 
 const HERO_BASE_Y = 0.5
-const HERO_Z_POSITION = 5  // Position hero in front of camera (camera at z=15)
+const HERO_Z_POSITION = 7  // Position hero in front of camera (camera at z=15)
 
 interface HeroCharacterProps {
   currentLane: number

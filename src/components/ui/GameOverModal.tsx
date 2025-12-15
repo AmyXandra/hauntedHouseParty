@@ -21,41 +21,47 @@ export default function GameOverModal({
     <div className="go-overlay">
       <div className="tombstone">
         <div className="tombstone-top">
-          <h1>Game Over</h1>
+          <h1>Game Over!</h1>
         </div>
+
         <div className="tombstone-body">
-          <div style={{ marginBottom: '45px' }}>
-            <p style={{ fontFamily: 'Creepster, cursive', fontSize: '26px' }}>Score:</p>
-            <div style={{
-              background: '#383753',
-              padding: '4px',
-              minWidth: '120px',
-              width: 'fit-content',
-              textAlign: 'center',
-              borderRadius: '6px',
-              display: 'flex',
-              margin: '4px auto',
-              color: 'white',
-            }}>
-              <p><span>{score}</span></p>
+          <div className="tombstone-body-inner">
+            <div style={{ marginBottom: '45px' }}>
+              <p style={{ fontFamily: 'Creepster, cursive', fontSize: '26px' }}>Score:</p>
+              <div style={{
+                background: '#383753',
+                padding: '4px',
+                minWidth: '120px',
+                width: 'fit-content',
+                textAlign: 'center',
+                borderRadius: '6px',
+                display: 'flex',
+                justifyContent: 'center',
+                margin: '4px auto',
+                color: 'white',
+
+              }}>
+                <p><span>{score}</span></p>
+              </div>
             </div>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <p style={{ fontFamily: 'Creepster, cursive', fontSize: '26px' }}>High Score: </p>
-            <div style={{
-              background: '#383753',
-              padding: '4px',
-              minWidth: '120px',
-              width: 'fit-content',
-              textAlign: 'center',
-              borderRadius: '6px',
-              display: 'flex',
-              margin: '4px auto',
-              color: 'white',
-            }}>
-              {highScore !== undefined && (
-                <p><span>{highScore}</span></p>
-              )}
+            <div style={{ marginBottom: '20px' }}>
+              <p style={{ fontFamily: 'Creepster, cursive', fontSize: '26px' }}>High Score: </p>
+              <div style={{
+                background: '#383753',
+                padding: '4px',
+                minWidth: '120px',
+                width: 'fit-content',
+                textAlign: 'center',
+                borderRadius: '6px',
+                display: 'flex',
+                justifyContent: 'center',
+                margin: '4px auto',
+                color: 'white',
+              }}>
+                {highScore !== undefined && (
+                  <p><span>{highScore}</span></p>
+                )}
+              </div>
             </div>
           </div>
         </div>

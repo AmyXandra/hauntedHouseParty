@@ -4,6 +4,7 @@ import { GameProps } from '../../types'
 import GameScene, { type GameState } from '../scene/runner/GameScene'
 import BackButton from '../ui/BackButton'
 import GameOverModal from '../ui/GameOverModal'
+import { useHighScore } from '../../hooks/useHighScore'
 
 // Game constants
 const GRAVITY = 0.008
@@ -29,6 +30,9 @@ const Game5 = ({ onBack }: GameProps) => {
 
   const bounceValueRef = useRef(0)
   const velocityRef = useRef(0)
+  
+  // High score tracking
+  const { highScore, updateHighScore } = useHighScore('tomb-runner')
 
   // Debug: Monitor lives changes
   useEffect(() => {
@@ -138,12 +142,22 @@ const Game5 = ({ onBack }: GameProps) => {
 
     setGameState(prev => {
       const newLives = prev.lives - 1
-      console.log(`🔥 Lives reduced from ${prev.lives} to ${newLives}`) // Debug log
-      console.log(`🔥 Game status will be: ${newLives <= 0 ? 'gameover' : 'playing'}`)
+      const isGameOver = newLives <= 0
+      
+      // Update high score when game ends
+      if (isGameOver) {
+        const isNewHighScore = updateHighScore(prev.score)
+        if (isNewHighScore) {
+          console.log(`🏆 NEW HIGH SCORE: ${prev.score}!`)
+        }
+      }
+      
+      console.log(`🔥 Lives reduced from ${prev.lives} to ${newLives}`)
+      console.log(`🔥 Game status will be: ${isGameOver ? 'gameover' : 'playing'}`)
       return {
         ...prev,
         lives: newLives,
-        gameStatus: newLives <= 0 ? 'gameover' : prev.gameStatus
+        gameStatus: isGameOver ? 'gameover' : prev.gameStatus
       }
     })
   }
@@ -317,6 +331,7 @@ const Game5 = ({ onBack }: GameProps) => {
       {/* Game Over Modal */}
       <GameOverModal
         score={gameState.score}
+        highScore={highScore}
         onReplay={resetGame}
         onHome={onBack}
         isVisible={gameState.gameStatus === 'gameover'}
