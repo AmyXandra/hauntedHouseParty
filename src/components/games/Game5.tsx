@@ -1,10 +1,20 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import { GameProps } from '../../types'
 import GameScene, { type GameState } from '../scene/runner/GameScene'
 import BackButton from '../ui/BackButton'
 import GameOverModal from '../ui/GameOverModal'
+import LoadingScreen from '../ui/LoadingScreen'
 import { useHighScore } from '../../hooks/useHighScore'
+
+// Preload all assets for faster loading
+useGLTF.preload('/models/box_boy.glb')
+useGLTF.preload('/models/stylized_coin/scene.gltf')
+useGLTF.preload('/models/ghost.glb')
+useGLTF.preload('/models/cap_pumpkin.glb')
+useGLTF.preload('/models/pine_tree.glb')
+useGLTF.preload('/models/forest_tree.glb')
 
 // Game constants
 const GRAVITY = 0.008
@@ -19,6 +29,7 @@ const RIGHT_LANE = 2
  * Navigate through a haunted graveyard, collecting coins while avoiding graves and ghosts
  */
 const Game5 = ({ onBack }: GameProps) => {
+  const [isLoadingAssets, setIsLoadingAssets] = useState(false)
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     lives: 3,
@@ -99,16 +110,27 @@ const Game5 = ({ onBack }: GameProps) => {
   }, [gameState.gameStatus])
 
   const startGame = () => {
-    setGameState({
-      score: 0,
-      lives: 3,
-      gameStatus: 'playing',
-      currentLane: MIDDLE_LANE,
-      isJumping: false,
-      coinsCollected: 0
-    })
-    bounceValueRef.current = 0
-    velocityRef.current = 0
+    // Show loading screen
+    setIsLoadingAssets(true)
+    
+    // Small delay to show loading screen, then start game
+    setTimeout(() => {
+      setGameState({
+        score: 0,
+        lives: 3,
+        gameStatus: 'playing',
+        currentLane: MIDDLE_LANE,
+        isJumping: false,
+        coinsCollected: 0
+      })
+      bounceValueRef.current = 0
+      velocityRef.current = 0
+      
+      // Hide loading screen after assets are ready
+      setTimeout(() => {
+        setIsLoadingAssets(false)
+      }, 1000) // Give time for Canvas and scene to initialize
+    }, 100)
   }
 
   const resetGame = () => {
@@ -224,6 +246,11 @@ const Game5 = ({ onBack }: GameProps) => {
 
   }
 
+  // Show loading screen while assets are being initialized
+  if (isLoadingAssets) {
+    return <LoadingScreen message="Loading Tomb Runner..." />
+  }
+
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative', backgroundColor: '#000' }}>
       {/* Game UI */}
@@ -325,13 +352,15 @@ const Game5 = ({ onBack }: GameProps) => {
         }}
         dpr={[1, 1.5]} // Limit pixel ratio for memory savings
       >
-        <GameScene
-          gameState={gameState}
-          onCollision={handleCollision}
-          onCoinCollect={handleCoinCollect}
-          bounceValue={bounceValueRef.current}
-          isHeroHit={isHeroHit}
-        />
+        <Suspense fallback={null}>
+          <GameScene
+            gameState={gameState}
+            onCollision={handleCollision}
+            onCoinCollect={handleCoinCollect}
+            bounceValue={bounceValueRef.current}
+            isHeroHit={isHeroHit}
+          />
+        </Suspense>
       </Canvas>
 
       {/* Game Over Modal */}

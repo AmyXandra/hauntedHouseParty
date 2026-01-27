@@ -4,7 +4,6 @@ import * as THREE from 'three'
 import PumpkinObj from './PumpkinObj'
 import BatObj from './BatObj'
 import BombObj from './BombObj'
-import ParticleObj from './ParticleObj'
 import ScorePopupObj from './ScorePopupObj'
 import SwipeDetector from './SwipeDetector'
 
@@ -40,7 +39,6 @@ export default function GameScene({
   onRemoveBat,
   onExplodeBomb,
   onRemoveBomb,
-  onRemoveParticle,
   onRemoveScorePopup
 }: GameSceneProps) {
   // Get viewport dimensions for cover effect
@@ -134,13 +132,13 @@ export default function GameScene({
         />
       ))}
 
-      {gameState.particles.map(particle => (
+      {/* {gameState.particles.map(particle => (
         <ParticleObj
           key={particle.id}
           particle={particle}
           onRemove={onRemoveParticle}
         />
-      ))}
+      ))} */}
 
       {gameState.scorePopups.map(popup => (
         <ScorePopupObj

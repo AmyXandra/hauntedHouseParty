@@ -41,10 +41,10 @@ export default function BombObj({ bomb, onExplode, onRemove }: BombObjProps) {
       ref={meshRef}
       onClick={() => onExplode(bomb.id, bomb.position.clone())}
     >
-      <sphereGeometry args={[0.4, 16, 16]} />
+      <sphereGeometry args={[1.0, 16, 16]} />
       <meshStandardMaterial color="#2a2a2a" emissive="#ff0000" emissiveIntensity={0.5} />
       <mesh position={[0, 0.3, 0]}>
-        <boxGeometry args={[0.2, 0.2, 0.2]} />
+        <boxGeometry args={[1.0, 0.2, 0.2]} />
         <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={2} />
       </mesh>
     </mesh>

@@ -21,6 +21,12 @@ export default function PumpkinObj({ pumpkin, onRemove }: PumpkinObjProps) {
   const meshRef = useRef<THREE.Group>(null)
   const { scene } = useGLTF('/models/pumkin2.glb')
   
+  // Clone scene once and reuse
+  const clonedScene = useRef<THREE.Group | null>(null)
+  if (!clonedScene.current) {
+    clonedScene.current = scene.clone()
+  }
+  
   useFrame((_, delta) => {
     if (!meshRef.current || pumpkin.sliced) return
     
@@ -50,8 +56,7 @@ export default function PumpkinObj({ pumpkin, onRemove }: PumpkinObjProps) {
     return (
       <group ref={meshRef} scale={Math.max(0, scale)}>
         {/* Sliced pumpkin halves */}
-        <primitive object={scene.clone()} position={[-0.2, 0, 0]} rotation={[0, 0, 0.3]} scale={0.5} />
-        {/* <primitive object={scene.clone()} position={[0.2, 0, 0]} rotation={[0, 0, -0.3]} scale={2} /> */}
+        <primitive object={clonedScene.current} position={[-0.2, 0, 0]} rotation={[0, 0, 0.3]} scale={0.5} />
       </group>
     )
   }
@@ -60,7 +65,7 @@ export default function PumpkinObj({ pumpkin, onRemove }: PumpkinObjProps) {
     <group ref={meshRef} userData={{ pumpkinId: pumpkin.id, pumpkin }}>
       {/* 3D Pumpkin model */}
       <primitive 
-        object={scene.clone()} 
+        object={clonedScene.current} 
         scale={1.3}
       />
       

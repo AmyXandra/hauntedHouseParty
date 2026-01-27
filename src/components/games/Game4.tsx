@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useGLTF } from '@react-three/drei'
 import { GameProps } from '../../types'
 import { GameState, Pumpkin, Bat, Bomb, ScorePopup } from '../../types/pumpkin-slicer'
 import BackButton from '../ui/BackButton'
@@ -8,7 +9,12 @@ import GameScene from '../scene/pumpkin-slicer/GameScene'
 import GameUI from '../ui/pumpkin-slicer/GameUI'
 import MenuScreen from '../ui/pumpkin-slicer/MenuScreen'
 import GameOverModal from '../ui/GameOverModal'
+import LoadingScreen from '../ui/LoadingScreen'
 import { useHighScore } from '../../hooks/useHighScore'
+
+// Preload assets for faster loading
+useGLTF.preload('/models/pumkin2.glb')
+new THREE.TextureLoader().load('/images/pumpkin-slicer-bg.png')
 
 
 /**
@@ -18,6 +24,7 @@ import { useHighScore } from '../../hooks/useHighScore'
  * Infinite gameplay - game ends when lives reach 0
  */
 const Game4 = ({ onBack }: GameProps) => {
+  const [isLoadingAssets, setIsLoadingAssets] = useState(false)
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     lives: 3,
@@ -37,21 +44,31 @@ const Game4 = ({ onBack }: GameProps) => {
 
   // Game actions
   const startGame = () => {
-    setGameState({
-      score: 0,
-      lives: 3,
-      round: 1,
-      gameStatus: 'playing',
-      pumpkins: [],
-      bats: [],
-      bombs: [],
-      particles: [],
-      scorePopups: [],
-      pumpkinsSlicedThisRound: 0,
-      totalPumpkinsThisRound: 0
-    })
+    // Show loading screen
+    setIsLoadingAssets(true)
+    
+    // Small delay to show loading screen, then start game
+    setTimeout(() => {
+      setGameState({
+        score: 0,
+        lives: 3,
+        round: 1,
+        gameStatus: 'playing',
+        pumpkins: [],
+        bats: [],
+        bombs: [],
+        particles: [],
+        scorePopups: [],
+        pumpkinsSlicedThisRound: 0,
+        totalPumpkinsThisRound: 0
+      })
 
-    setTimeout(() => addPumpkinBatch(2), 500)
+      // Hide loading screen after assets are ready
+      setTimeout(() => {
+        setIsLoadingAssets(false)
+        addPumpkinBatch(2)
+      }, 1000) // Give time for Canvas and scene to initialize
+    }, 100)
   }
 
   const resetGame = () => {
@@ -315,7 +332,10 @@ const Game4 = ({ onBack }: GameProps) => {
     return <MenuScreen onStartGame={startGame} onBack={onBack} />
   }
 
-
+  // Show loading screen while assets are being initialized
+  if (isLoadingAssets) {
+    return <LoadingScreen message="Loading Pumpkin Slicer..." />
+  }
 
   return (
     <div style={{
@@ -341,16 +361,18 @@ const Game4 = ({ onBack }: GameProps) => {
           far: 1000
         }}
       >
-        <GameScene
-          gameState={gameState}
-          onSlicePumpkin={slicePumpkin}
-          onRemovePumpkin={removePumpkin}
-          onRemoveBat={removeBat}
-          onExplodeBomb={explodeBomb}
-          onRemoveBomb={removeBomb}
-          onRemoveParticle={removeParticle}
-          onRemoveScorePopup={removeScorePopup}
-        />
+        <Suspense fallback={null}>
+          <GameScene
+            gameState={gameState}
+            onSlicePumpkin={slicePumpkin}
+            onRemovePumpkin={removePumpkin}
+            onRemoveBat={removeBat}
+            onExplodeBomb={explodeBomb}
+            onRemoveBomb={removeBomb}
+            onRemoveParticle={removeParticle}
+            onRemoveScorePopup={removeScorePopup}
+          />
+        </Suspense>
       </Canvas>
 
       {/* Game Over Modal */}
